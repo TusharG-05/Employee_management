@@ -5,8 +5,23 @@ from models import Employee, Department, Attendance, DeptMaster
 import schemas
 
 def generate_emp_id(db: Session, name: str):
-    count = db.query(Employee).count() + 1
-    return f"{name.upper()}{str(count).zfill(3)}"
+    name_upper = name.upper()
+    
+    # Get the emp_id with the largest numeric part
+    last_emp = (
+        db.query(Employee)
+        .order_by(Employee.emp_id.desc())
+        .first()
+    )
+    
+    if last_emp:
+        # Extract numeric part
+        last_number = int(''.join(filter(str.isdigit, last_emp.emp_id)))
+        new_number = last_number + 1
+    else:
+        new_number = 1
+    
+    return f"{name_upper}{str(new_number).zfill(3)}"
 
 def generate_password(length=8):
     chars = string.ascii_letters + string.digits + "@#"
