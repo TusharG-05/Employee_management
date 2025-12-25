@@ -3,33 +3,41 @@ import string
 from sqlalchemy.orm import Session
 from models import Employee, Department, Attendance, DeptMaster
 import schemas
+from auth import get_password_hash
 
-def generate_emp_id(db: Session, name: str):
+def generate_emp_id(db: Session, name: str, role: str = "employee"):
     name_upper = name.upper()
+    prefix = "ADMIN" if role == "admin" else ""
     
     # Get the emp_id with the largest numeric part
     last_emp = (
         db.query(Employee)
+        .filter(Employee.emp_id.startswith(prefix))  # Filter by prefix
         .order_by(Employee.emp_id.desc())
         .first()
     )
     
     if last_emp:
-        # Extract numeric part
-        last_number = int(''.join(filter(str.isdigit, last_emp.emp_id)))
+        # Extract numeric part after prefix
+        emp_id_str = last_emp.emp_id
+        if prefix:
+            emp_id_str = emp_id_str[len(prefix):]
+        last_number = int(''.join(filter(str.isdigit, emp_id_str)))
         new_number = last_number + 1
     else:
         new_number = 1
     
-    return f"{name_upper}{str(new_number).zfill(3)}"
+    return f"{prefix}{name_upper}{str(new_number).zfill(3)}"
 
 def generate_password(length=8):
     chars = string.ascii_letters + string.digits + "@#"
     return ''.join(random.choice(chars) for _ in range(length))
 
 def create_employee(db: Session, data: schemas.EmployeeCreate):
-    emp_id = generate_emp_id(db, data.name)
+    role = data.role or "employee"
+    emp_id = generate_emp_id(db, data.name, role)
     password = generate_password()
+    hashed_password = get_password_hash(password)  # Hash the password
 
     employee = Employee(
         emp_id=emp_id,
@@ -37,7 +45,8 @@ def create_employee(db: Session, data: schemas.EmployeeCreate):
         age=data.age,
         dept=data.dept,
         salary=data.salary,
-        password=password
+        password=hashed_password,  # Store hashed password
+        role=role  # Set role
     )
     db.add(employee)
     db.flush()
@@ -103,6 +112,9 @@ def update_employee(db: Session, emp_id: str, data: schemas.EmployeeUpdate):
         existing = db.query(DeptMaster).filter(DeptMaster.name == dept_name).first()
         if not existing:
             db.add(DeptMaster(name=dept_name))
+
+    if data.role is not None:
+        employee.role = data.role
 
     db.commit()
     db.refresh(employee)

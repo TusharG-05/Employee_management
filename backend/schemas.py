@@ -6,6 +6,7 @@ class EmployeeCreate(BaseModel):
     age: int
     dept: str
     salary: int
+    role: Optional[str] = "employee"  # New: Role field, default "employee"
 
 
 class EmployeeLogin(BaseModel):
@@ -21,7 +22,13 @@ class EmployeeUpdate(BaseModel):
     age: Optional[int] = None
     dept: Optional[str] = None
     salary: Optional[int] = None
+    role: Optional[str] = None  # New: Optional role update
 
 
 class DepartmentCreate(BaseModel):
     name: str
+
+
+class Token(BaseModel):  # New: For JWT response
+    access_token: str
+    token_type: str

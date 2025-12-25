@@ -4,6 +4,7 @@ from database import SessionLocal, engine
 import models, schemas, crud
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
+from auth import authenticate_user, create_access_token, get_current_admin
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -24,31 +25,45 @@ def get_db():
         db.close()
 
 @app.post("/admin/add-employee")
-def add_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db)):
+def add_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.create_employee(db, employee)
 
 @app.get("/admin/employees")
-def list_employees(db: Session = Depends(get_db)):
+def list_employees(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.get_all_employees(db)
 
 @app.get("/admin/employee/{emp_id}")
-def get_employee(emp_id: str, db: Session = Depends(get_db)):
+def get_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     emp = crud.get_employee(db, emp_id)
     if not emp:
         raise HTTPException(status_code=404, detail="Employee not found")
     return emp
 
 @app.delete("/admin/delete/{emp_id}")
-def delete_employee(emp_id: str, db: Session = Depends(get_db)):
+def delete_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     crud.delete_employee(db, emp_id)
     return {"message": "Employee deleted"}
 
-@app.post("/employee/login")
+@app.post("/admin/register", response_model=schemas.Token)
+def admin_register(data: schemas.EmployeeCreate, db: Session = Depends(get_db)):
+    """Register a new admin (unprotected for initial setup)."""
+    if data.role != "admin":
+        raise HTTPException(status_code=400, detail="Only admins can register here")
+    result = crud.create_employee(db, data)
+    # Auto-login after register
+    user = authenticate_user(db, result["emp_id"], result["password"])
+    if not user:
+        raise HTTPException(status_code=500, detail="Registration failed")
+    access_token = create_access_token(data={"sub": user.emp_id})
+    return {"access_token": access_token, "token_type": "bearer", "emp_id": result["emp_id"], "password": result["password"]}
+
+@app.post("/employee/login", response_model=schemas.Token)
 def employee_login(data: schemas.EmployeeLogin, db: Session = Depends(get_db)):
-    emp = crud.get_employee(db, data.emp_id)
-    if not emp or emp.password != data.password:
+    user = authenticate_user(db, data.emp_id, data.password)
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return {"message": "Login successful"}
+    access_token = create_access_token(data={"sub": user.emp_id})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/employee/attendance/{emp_id}")
 def employee_attendance(emp_id: str, db: Session = Depends(get_db)):
@@ -56,11 +71,11 @@ def employee_attendance(emp_id: str, db: Session = Depends(get_db)):
     return record
 
 @app.get("/admin/attendance")
-def admin_attendance(db: Session = Depends(get_db)):
+def admin_attendance(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return db.query(models.Attendance).all()
 
 @app.put("/admin/attendance/{emp_id}")
-def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session = Depends(get_db)):
+def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     """Update or create attendance record for the given employee."""
     record = db.query(models.Attendance).filter_by(emp_id=emp_id).first()
     if record:
@@ -72,7 +87,7 @@ def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session =
     return {"message": "Attendance updated"}
 
 @app.patch("/admin/employee/{emp_id}")
-def update_employee(emp_id: str, data: schemas.EmployeeUpdate, db: Session = Depends(get_db)):
+def update_employee(emp_id: str, data: schemas.EmployeeUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     updated = crud.update_employee(db, emp_id, data)
     if not updated:
         raise HTTPException(status_code=404, detail="Employee not found")
@@ -85,7 +100,7 @@ def employee_profile(emp_id: str, db: Session = Depends(get_db)):
 
 # NEW DEPARTMENT ENDPOINT
 @app.get("/admin/departments")
-def get_departments(db: Session = Depends(get_db)):
+def get_departments(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     """Get department statistics from master list combined with employees."""
     # Seed master list from existing employees if empty (backwards compatibility)
     if db.query(models.DeptMaster).count() == 0:
@@ -114,13 +129,13 @@ def get_departments(db: Session = Depends(get_db)):
 
 
 @app.post("/admin/departments")
-def add_department(data: schemas.DepartmentCreate, db: Session = Depends(get_db)):
+def add_department(data: schemas.DepartmentCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     dept = crud.create_department(db, data)
     return {"id": dept.id, "name": dept.name}
 
 
 @app.delete("/admin/departments/{name}")
-def remove_department(name: str, db: Session = Depends(get_db)):
+def remove_department(name: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     # Prevent deleting if any employee is assigned
     count = db.query(models.Employee).filter(models.Employee.dept == name.upper()).count()
     if count > 0:

@@ -10,6 +10,7 @@ class Employee(Base):
     dept = Column(String)
     salary = Column(Float)
     password = Column(String)
+    role = Column(String, default="employee")  # New: Role column, default to "employee"
 
 
 class DeptMaster(Base):
@@ -33,3 +34,4 @@ class Attendance(Base):
     id = Column(Integer, primary_key=True, index=True)
     emp_id = Column(String, ForeignKey("employees.emp_id"))
     status = Column(String)
+    

@@ -1,21 +1,81 @@
 let currentEmployee = null;
 
-function adminLogin() {
-  const email = document.getElementById("email").value;
+async function adminLogin() {
+  const emp_id = document.getElementById("emp_id").value;
   const password = document.getElementById("password").value;
 
-  if (
-    email === ADMIN_CREDENTIALS.email &&
-    password === ADMIN_CREDENTIALS.password
-  ) {
+  try {
+    const res = await fetch(`${API_BASE}/employee/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        emp_id,
+        password
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("Invalid credentials");
+    }
+
+    const data = await res.json();
+    setToken(data.access_token);
     location.href = "admin-dashboard.html";
-  } else {
+  } catch (error) {
     alert("Invalid admin credentials");
   }
 }
 
+async function adminRegister() {
+  const name = document.getElementById("name").value;
+  const age = document.getElementById("age").value;
+  const dept = document.getElementById("dept").value;
+  const salary = document.getElementById("salary").value;
+
+  if (!name || !age || !dept || !salary) {
+    alert("All fields are required");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/admin/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        age: Number(age),
+        dept,
+        salary: Number(salary),
+        role: "admin"
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("Registration failed");
+    }
+
+    const data = await res.json();
+    
+    // Display credentials on the page
+    document.getElementById("register-form").style.display = "none";
+    document.getElementById("credentials").style.display = "block";
+    document.getElementById("emp-id").textContent = data.emp_id;
+    document.getElementById("emp-password").textContent = data.password;
+    
+    // Auto-login
+    setToken(data.access_token);
+    
+  } catch (error) {
+    alert("Registration failed. Backend may not be running.");
+  }
+}
+
 async function loadEmployees() {
-  const res = await fetch(`${API_BASE}/admin/employees`);
+  const res = await apiRequest('/admin/employees');
   const data = await res.json();
 
   const container = document.getElementById("employees");
@@ -60,11 +120,8 @@ async function createEmployee() {
       return;
     }
 
-    const res = await fetch(`${API_BASE}/admin/add-employee`, {
+    const res = await apiRequest('/admin/add-employee', {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
         name,
         age: Number(age),
@@ -101,7 +158,7 @@ async function loadEmployeeDetails() {
     return;
   }
 
-  const res = await fetch(`${API_BASE}/admin/employee/${emp_id}`);
+  const res = await apiRequest(`/admin/employee/${emp_id}`);
   const emp = await res.json();
 
   // ✅ STORE EMPLOYEE
@@ -153,11 +210,8 @@ async function saveEmployee() {
   const dept = document.getElementById("dept").value;
   const salary = document.getElementById("salary").value;
 
-  await fetch(`${API_BASE}/admin/employee/${emp_id}`, {
+  await apiRequest(`/admin/employee/${emp_id}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       name,
       age: Number(age),
@@ -180,7 +234,7 @@ async function deleteEmployee() {
 
   if (!confirm("Delete this employee permanently?")) return;
 
-  await fetch(`${API_BASE}/admin/delete/${emp_id}`, {
+  await apiRequest(`/admin/delete/${emp_id}`, {
     method: "DELETE"
   });
 
@@ -190,7 +244,7 @@ async function deleteEmployee() {
 }
 
 async function loadAttendance() {
-  const res = await fetch(`${API_BASE}/admin/attendance`);
+  const res = await apiRequest('/admin/attendance');
   const data = await res.json();
 
   const container = document.getElementById("attendance-list");
@@ -216,13 +270,10 @@ async function loadAttendance() {
 }
 
 async function updateAttendance(emp_id, status) {
-  const res = await fetch(`${API_BASE}/admin/attendance/${emp_id}`, {
-    method: "PUT", // ✅ MUST BE PUT
-    headers: {
-      "Content-Type": "application/json"
-    },
+  const res = await apiRequest(`/admin/attendance/${emp_id}`, {
+    method: "PUT",
     body: JSON.stringify({
-      status: status // ✅ MUST MATCH BACKEND SCHEMA
+      status: status
     })
   });
 
@@ -251,9 +302,8 @@ function showEditForm() {
 }
 
 async function updateEmployee() {
-  await fetch(`${API_BASE}/admin/employee/${currentEmployee.emp_id}`, {
+  await apiRequest(`/admin/employee/${currentEmployee.emp_id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: document.getElementById("editName").value,
       age: Number(document.getElementById("editAge").value),
@@ -269,7 +319,7 @@ async function updateEmployee() {
 
 // ===== NEW DEPARTMENT FUNCTIONS =====
 async function showDepartmentsModal() {
-  const res = await fetch(`${API_BASE}/admin/departments`);
+  const res = await apiRequest('/admin/departments');
   const departments = await res.json();
 
   const deptList = document.getElementById('deptList');
@@ -307,9 +357,8 @@ async function updateAllEmployeesDept(oldDept, newDept) {
   const toUpdate = employees.filter(e => (e.dept || "").trim().toUpperCase() === oldKey);
   
   for (const emp of toUpdate) {
-    await fetch(`${API_BASE}/admin/employee/${emp.emp_id}`, {
+    await apiRequest(`/admin/employee/${emp.emp_id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dept: newDept })
     });
   }
@@ -328,9 +377,8 @@ async function addDepartment() {
     alert("Department name cannot be empty.");
     return;
   }
-  const res = await fetch(`${API_BASE}/admin/departments`, {
+  const res = await apiRequest('/admin/departments', {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: trimmed })
   });
   if (!res.ok) {
@@ -348,7 +396,7 @@ async function deleteDepartment(deptName, employeeCount) {
     return;
   }
   if (!confirm(`Delete department "${deptName}"? This cannot be undone.`)) return;
-  const res = await fetch(`${API_BASE}/admin/departments/${encodeURIComponent(deptName)}`, {
+  const res = await apiRequest(`/admin/departments/${encodeURIComponent(deptName)}`, {
     method: "DELETE"
   });
   if (!res.ok) {
@@ -363,7 +411,7 @@ async function deleteDepartment(deptName, employeeCount) {
 async function loadDepartmentOptionsInto(selectId, selectedDept) {
   const select = document.getElementById(selectId);
   if (!select) return;
-  const res = await fetch(`${API_BASE}/admin/departments`);
+  const res = await apiRequest('/admin/departments');
   const departments = await res.json();
   const current = (selectedDept || "").toUpperCase();
   select.innerHTML = `<option value="">Select Department</option>`;
