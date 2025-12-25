@@ -1,0 +1,142 @@
+/* style.css - Dark dashboard theme */
+body.bg-dark {
+  background: #020617 !important;
+  color: #e5e7eb !important;
+}
+
+.bg-dark-custom {
+  background: #020617 !important;
+}
+
+.card-custom {
+  background: #020617 !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  color: #f9fafb !important;
+  border-radius: 0.85rem !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.card-custom:hover {
+  transform: translateY(-3px);
+  border-color: #38bdf8 !important;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.9);
+}
+
+/* Essential text fixes */
+.text-white { color: #ffffff !important; }
+.text-muted { color: #94a3b8 !important; }
+
+/* Table fix */
+.table-dark-custom {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.table-dark-custom th {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+/* Form fix - PLACEHOLDER COLORS ADDED */
+.form-control.bg-dark {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+/* Placeholder color fix */
+.form-control.bg-dark::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Primary actions */
+.btn {
+  border-width: 1px !important;
+  border-radius: 999px !important;
+  font-weight: 500;
+  padding-inline: 1.15rem;
+  padding-block: 0.45rem;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px #0f172a;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.65);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+  border-color: transparent !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+  border-color: transparent !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #06b6d4, #0ea5e9) !important;
+  border-color: transparent !important;
+}
+
+/* Badges for status */
+.badge-present { background: #16a34a !important; }
+.badge-absent { background: #dc2626 !important; }
+.badge-late { background: #d97706 !important; }
+.badge-leave { background: #2563eb !important; }
+
+/* Employee list rows */
+#employees > div {
+  background: rgba(15, 23, 42, 0.85);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+#employees > div:hover {
+  background: rgba(30, 64, 175, 0.35);
+  transform: translateY(-1px);
+}
+
+.card-body#employees-body {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+/* Navigation */
+.navbar-dark .nav-link {
+  color: #cbd5e1 !important;
+}
+
+.navbar-dark .nav-link:hover {
+  color: #e5e7eb !important;
+}
+
+/* Borders */
+.border-secondary {
+  border-color: #475569 !important;
+}
+
+/* Modal / table polish */
+.modal-content.bg-dark-custom {
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.9);
+}
+
+.table-dark-custom tr td,
+.table-dark-custom tr th {
+  border-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+.table-dark-custom tbody tr:hover {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+}
