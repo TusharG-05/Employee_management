@@ -14,8 +14,8 @@ async function employeeLogin() {
       body: JSON.stringify({ emp_id, password })
     });
 
-    if (!res.ok) throw new Error("Invalid credentials");
-
+    const data = await res.json();
+    setToken(data.access_token);
     localStorage.setItem("emp_id", emp_id);
     location.href = "employee-dashboard.html";
   } catch (err) {
@@ -31,7 +31,7 @@ async function loadEmployeeDashboard() {
   }
 
   // Profile
-  const profileRes = await fetch(`${API_BASE}/employee/profile/${emp_id}`);
+  const profileRes = await apiRequest(`/employee/profile/${emp_id}`);
   if (!profileRes.ok) {
     alert("Failed to load profile. Please log in again.");
     logout();
@@ -47,7 +47,7 @@ async function loadEmployeeDashboard() {
   `;
 
   // Attendance
-  const attRes = await fetch(`${API_BASE}/employee/attendance/${emp_id}`);
+  const attRes = await apiRequest(`/employee/attendance/${emp_id}`);
   let attendanceText = "No record";
   if (attRes.ok) {
     const attendance = await attRes.json();
@@ -64,5 +64,6 @@ async function loadEmployeeDashboard() {
 
 function logout() {
   localStorage.removeItem("emp_id");
+  clearToken();
   location.href = "index.html";
 }
