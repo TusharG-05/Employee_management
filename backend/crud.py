@@ -160,7 +160,6 @@ def create_department(db: Session, data: schemas.DepartmentCreate):
     db.refresh(dept)
     return dept
 
-
 def delete_department(db: Session, name: str):
     """Delete a department from master list (does not touch employees)."""
     name = name.upper()
