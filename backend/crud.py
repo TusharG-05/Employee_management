@@ -46,7 +46,7 @@ def create_employee(db: Session, data: schemas.EmployeeCreate):
         dept=data.dept,
         salary=data.salary,
         password=hashed_password,  # Store hashed password
-        role=role  # Set role
+        role=role  # Set role (*default - "employee") 
     )
     db.add(employee)
     db.flush()
