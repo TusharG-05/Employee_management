@@ -1,12 +1,18 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class EmployeeCreate(BaseModel):
     name: str
     age: int
     dept: str
-    salary: int
-    role: Optional[str] = "employee"  # New: Role field, default "employee"
+ 
+class EmployeeOut(BaseModel):
+    emp_id: str
+    name: str
+    age: int
+    dept: str
+    salary: float
+    role: str
 
 
 class EmployeeLogin(BaseModel):
@@ -32,3 +38,5 @@ class DepartmentCreate(BaseModel):
 class Token(BaseModel):  # New: For JWT response
     access_token: str
     token_type: str
+    emp_id: Optional[str] = None
+    password: Optional[str] = None

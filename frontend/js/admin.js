@@ -28,51 +28,51 @@ async function adminLogin() {
   }
 }
 
-async function adminRegister() {
-  const name = document.getElementById("name").value;
-  const age = document.getElementById("age").value;
-  const dept = document.getElementById("dept").value;
-  const salary = document.getElementById("salary").value;
+// async function adminRegister() {
+//   const name = document.getElementById("name").value;
+//   const age = document.getElementById("age").value;
+//   const dept = document.getElementById("dept").value;
+//   const salary = document.getElementById("salary").value;
 
-  if (!name || !age || !dept || !salary) {
-    alert("All fields are required");
-    return;
-  }
+//   if (!name || !age || !dept || !salary) {
+//     alert("All fields are required");
+//     return;
+//   }
 
-  try {
-    const res = await fetch(`${API_BASE}/admin/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name,
-        age: Number(age),
-        dept,
-        salary: Number(salary),
-        role: "admin"
-      })
-    });
+//   try {
+//     const res = await fetch(`${API_BASE}/admin/register`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({
+//         name,
+//         age: Number(age),
+//         dept,
+//         salary: Number(salary),
+//         role: "admin"
+//       })
+//     });
 
-    if (!res.ok) {
-      throw new Error("Registration failed");
-    }
+//     if (!res.ok) {
+//       throw new Error("Registration failed");
+//     }
 
-    const data = await res.json();
+//     const data = await res.json();
     
-    // Display credentials on the page
-    document.getElementById("register-form").style.display = "none";
-    document.getElementById("credentials").style.display = "block";
-    document.getElementById("emp-id").textContent = data.emp_id;
-    document.getElementById("emp-password").textContent = data.password;
+//     // Display credentials on the page
+//     document.getElementById("register-form").style.display = "none";
+//     document.getElementById("credentials").style.display = "block";
+//     document.getElementById("emp-id").textContent = data.emp_id;
+//     document.getElementById("emp-password").textContent = data.password;
     
-    // Auto-login
-    setToken(data.access_token);
+//     // Auto-login
+//     setToken(data.access_token);
     
-  } catch (error) {
-    alert("Registration failed. Backend may not be running.");
-  }
-}
+//   } catch (error) {
+//     alert("Registration failed. Backend may not be running.");
+//   }
+// }
 
 async function loadEmployees() {
   const res = await apiRequest('/admin/employees');

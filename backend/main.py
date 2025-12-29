@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 import models, schemas, crud
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import func
 from auth import authenticate_user, create_access_token, get_current_admin
 
@@ -28,11 +30,11 @@ def get_db():
 def add_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.create_employee(db, employee)
 
-@app.get("/admin/employees")
+@app.get("/admin/employees", response_model=List[schemas.EmployeeOut])
 def list_employees(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.get_all_employees(db)
 
-@app.get("/admin/employee/{emp_id}")
+@app.get("/admin/employee/{emp_id}", response_model=schemas.EmployeeOut)
 def get_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     emp = crud.get_employee(db, emp_id)
     if not emp:
@@ -44,20 +46,28 @@ def delete_employee(emp_id: str, db: Session = Depends(get_db), current_user: st
     crud.delete_employee(db, emp_id)
     return {"message": "Employee deleted"}
 
-@app.post("/admin/register", response_model=schemas.Token)
-def admin_register(data: schemas.EmployeeCreate, db: Session = Depends(get_db)):
-    """Register a new admin (unprotected for initial setup)."""
-    if data.role != "admin":
-        raise HTTPException(status_code=400, detail="Only admins can register here")
-    result = crud.create_employee(db, data)
-    # Auto-login after register
-    user = authenticate_user(db, result["emp_id"], result["password"])
-    if not user:
-        raise HTTPException(status_code=500, detail="Registration failed")
-    access_token = create_access_token(data={"sub": user.emp_id})
-    return {"access_token": access_token, "token_type": "bearer", "emp_id": result["emp_id"], "password": result["password"]}
+# @app.post("/admin/register", response_model=schemas.Token)
+# def admin_register(data: schemas.EmployeeCreate, db: Session = Depends(get_db)):
+#     """Register a new admin (unprotected for initial setup)."""
+#     if data.role != "admin":
+#         raise HTTPException(status_code=400, detail="Only admins can register here")
+#     result = crud.create_employee(db, data)
+#     # Auto-login after register
+#     user = authenticate_user(db, result["emp_id"], result["password"])
+#     if not user:
+#         raise HTTPException(status_code=500, detail="Registration failed")
+#     access_token = create_access_token(data={"sub": user.emp_id})
+#     return {"access_token": access_token, "token_type": "bearer", "emp_id": result["emp_id"], "password": result["password"]}
 
-@app.post("/employee/login", response_model=schemas.Token)
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    access_token = create_access_token(data={"sub": user.emp_id})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/employee/login")
 def employee_login(data: schemas.EmployeeLogin, db: Session = Depends(get_db)):
     user = authenticate_user(db, data.emp_id, data.password)
     if not user:

@@ -41,7 +41,7 @@ def create_employee(db: Session, data: schemas.EmployeeCreate):
 
     employee = Employee(
         emp_id=emp_id,
-        name=data.name.upper(),
+        name=data.name,
         age=data.age,
         dept=data.dept,
         salary=data.salary,
@@ -170,4 +170,5 @@ def delete_department(db: Session, name: str):
     db.delete(dept)
     db.commit()
     return True
+
 
