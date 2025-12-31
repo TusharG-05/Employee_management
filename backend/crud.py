@@ -1,29 +1,32 @@
 import random
 import string
 from sqlalchemy.orm import Session
+from sqlalchemy import func, Integer
 from models import Employee, Department, Attendance, DeptMaster
 import schemas
 from auth import get_password_hash
+import re
 
 def generate_emp_id(db: Session, name: str, role: str = "employee"):
-    name_upper = name.upper()
+    name_upper = name.upper().replace(' ', '')
     prefix = "ADMIN" if role == "admin" else ""
     
-    # Get the emp_id with the largest numeric part
+    # Get the emp_id with the largest numeric part across all
     last_emp = (
         db.query(Employee)
-        .filter(Employee.emp_id.startswith(prefix))  # Filter by prefix
-        .order_by(Employee.emp_id.desc())
+        .order_by(func.cast(func.right(Employee.emp_id, 3), Integer).desc())
         .first()
     )
     
     if last_emp:
-        # Extract numeric part after prefix
+        # Extract the number from the end of the emp_id
         emp_id_str = last_emp.emp_id
-        if prefix:
-            emp_id_str = emp_id_str[len(prefix):]
-        last_number = int(''.join(filter(str.isdigit, emp_id_str)))
-        new_number = last_number + 1
+        match = re.search(r'(\d+)$', emp_id_str)
+        if match:
+            last_number = int(match.group(1))
+            new_number = last_number + 1
+        else:
+            new_number = 1
     else:
         new_number = 1
     

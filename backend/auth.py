@@ -9,7 +9,7 @@ from database import SessionLocal
 import models
 
 # Secret key for JWT (in production, use environment variable)
-with open("secret.key") as f:
+with open("backend/secret.key") as f:
     keys = [line.strip() for line in f if line.strip()]
 SECRET_KEY = random.choice(keys)
 ALGORITHM = "HS256"

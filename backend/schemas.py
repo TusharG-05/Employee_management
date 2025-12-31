@@ -5,6 +5,8 @@ class EmployeeCreate(BaseModel):
     name: str
     age: int
     dept: str
+    salary: float
+    role: Optional[str] = None
  
 class EmployeeOut(BaseModel):
     emp_id: str
