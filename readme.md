@@ -121,10 +121,11 @@ employee_management/
 
 ### Admin Login
 
-- Use admin credentials - emp_id : ADMINOLIVIAPARKER096 with password: Y8wQWzVr
-emp_id : ADMINWYATTJENKINS097 with password: a9HnDB1T
-emp_id : ADMINGABRIELLANELSON098 with password: NjM2m#g#
-emp_id : ADMINPATRICKEVANS099 with password: oHzIpOse
+- Use admin credentials 
+emp_id : ADMINOLIVIAPARKER096 with password: Y8wQWzVr || 
+emp_id : ADMINWYATTJENKINS097 with password: a9HnDB1T || 
+emp_id : ADMINGABRIELLANELSON098 with password: NjM2m#g# || 
+emp_id : ADMINPATRICKEVANS099 with password: oHzIpOse || 
 emp_id : ADMINKYLIEROBERTS100 with password: d1AKQWgq
 - Admins can manage all employees, departments, and attendance
 - Can add employees and generate credentials 
