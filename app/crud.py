@@ -2,9 +2,9 @@ import random
 import string
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Integer
-from models import Employee, Department, Attendance, DeptMaster
-import schemas
-from auth import get_password_hash
+from .models import Employee, Department, Attendance, DeptMaster
+from . import schemas
+from .security import get_password_hash
 import re
 
 def generate_emp_id(db: Session, name: str, role: str = "employee"):

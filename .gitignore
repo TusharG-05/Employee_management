@@ -1,8 +1,5 @@
 # Virtual environment
-/myenv
-
-# VS Code settings
-.vscode/
+myenv/
 
 # Python cache
 __pycache__/
@@ -14,10 +11,9 @@ __pycache__/
 # OS junk
 .DS_Store
 
-# secret key
-backend/secret.key
+# IDE
+.vscode/
 
 #dummy data files
-backend/seed_data.py
-dummy_data.txt
-
+scripts/seed.py
+data/dummy_data.txt

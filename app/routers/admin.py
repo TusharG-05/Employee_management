@@ -1,86 +1,32 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-import models, schemas, crud
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import func
-from auth import authenticate_user, create_access_token, get_current_admin
+from .. import models, schemas, crud
+from ..security import get_current_admin
+from ..dependencies import get_db
 
-models.Base.metadata.create_all(bind=engine)
+router = APIRouter()
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.post("/admin/add-employee")
+@router.post("/admin/add-employee")
 def add_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.create_employee(db, employee)
 
-@app.get("/admin/employee/{emp_id}", response_model=schemas.EmployeeOut)
+@router.get("/admin/employee/{emp_id}", response_model=schemas.EmployeeOut)
 def get_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     emp = crud.get_employee(db, emp_id)
     if not emp:
         raise HTTPException(status_code=404, detail="Employee not found")
     return emp
 
-@app.delete("/admin/delete/{emp_id}")
+@router.delete("/admin/delete/{emp_id}")
 def delete_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     crud.delete_employee(db, emp_id)
     return {"message": "Employee deleted"}
 
-# @app.post("/admin/register", response_model=schemas.Token)
-# def admin_register(data: schemas.EmployeeCreate, db: Session = Depends(get_db)):
-#     """Register a new admin (unprotected for initial setup)."""
-#     if data.role != "admin":
-#         raise HTTPException(status_code=400, detail="Only admins can register here")
-#     result = crud.create_employee(db, data)
-#     # Auto-login after register
-#     user = authenticate_user(db, result["emp_id"], result["password"])
-#     if not user:
-#         raise HTTPException(status_code=500, detail="Registration failed")
-#     access_token = create_access_token(data={"sub": user.emp_id})
-#     return {"access_token": access_token, "token_type": "bearer", "emp_id": result["emp_id"], "password": result["password"]}
-
-@app.post("/token")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token = create_access_token(data={"sub": user.emp_id})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.post("/employee/login")
-def employee_login(data: schemas.EmployeeLogin, db: Session = Depends(get_db)):
-    user = authenticate_user(db, data.emp_id, data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    access_token = create_access_token(data={"sub": user.emp_id})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.get("/employee/attendance/{emp_id}")
-def employee_attendance(emp_id: str, db: Session = Depends(get_db)):
-    record = db.query(models.Attendance).filter_by(emp_id=emp_id).first()
-    return record
-
-@app.get("/admin/attendance")
+@router.get("/admin/attendance")
 def admin_attendance(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return db.query(models.Attendance).all()
 
-@app.put("/admin/attendance/{emp_id}")
+@router.put("/admin/attendance/{emp_id}")
 def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     """Update or create attendance record for the given employee."""
     record = db.query(models.Attendance).filter_by(emp_id=emp_id).first()
@@ -92,20 +38,14 @@ def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session =
     db.commit()
     return {"message": "Attendance updated"}
 
-@app.patch("/admin/employee/{emp_id}")
+@router.patch("/admin/employee/{emp_id}")
 def update_employee(emp_id: str, data: schemas.EmployeeUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     updated = crud.update_employee(db, emp_id, data)
     if not updated:
         raise HTTPException(status_code=404, detail="Employee not found")
     return {"message": "Employee updated successfully"}
 
-@app.get("/employee/profile/{emp_id}")
-def employee_profile(emp_id: str, db: Session = Depends(get_db)):
-    emp = crud.get_employee(db, emp_id)
-    return emp
-
-# NEW DEPARTMENT ENDPOINT
-@app.get("/admin/departments")
+@router.get("/admin/departments")
 def get_departments(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     """Get department statistics from master list combined with employees."""
     # Seed master list from existing employees if empty (backwards compatibility)
@@ -133,14 +73,12 @@ def get_departments(db: Session = Depends(get_db), current_user: str = Depends(g
         })
     return result
 
-
-@app.post("/admin/departments")
+@router.post("/admin/departments")
 def add_department(data: schemas.DepartmentCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     dept = crud.create_department(db, data)
     return {"id": dept.id, "name": dept.name}
 
-
-@app.delete("/admin/departments/{name}")
+@router.delete("/admin/departments/{name}")
 def remove_department(name: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     # Prevent deleting if any employee is assigned
     count = db.query(models.Employee).filter(models.Employee.dept == name.upper()).count()
@@ -154,6 +92,6 @@ def remove_department(name: str, db: Session = Depends(get_db), current_user: st
         raise HTTPException(status_code=404, detail="Department not found")
     return {"message": "Department deleted successfully"}
 
-@app.get("/admin/employees", response_model=schemas.EmployeeListResponse)
+@router.get("/admin/employees", response_model=schemas.EmployeeListResponse)
 def list_employees(skip: int = 0, limit: int = 10, name: str | None = None, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.get_limit_employees(skip, limit, name, db)

@@ -30,14 +30,30 @@ A full-stack web application for managing employee data, built with FastAPI back
 
 ```
 employee_management/
-├── backend/
+├── app/
+│   ├── __init__.py      # Package initialization
 │   ├── main.py          # FastAPI application entry point
+│   ├── dependencies.py  # Dependency injection utilities
 │   ├── models.py        # SQLAlchemy database models
 │   ├── schemas.py       # Pydantic schemas for request/response
 │   ├── crud.py          # Database operations
-│   ├── auth.py          # Authentication utilities
+│   ├── security.py      # Authentication utilities
 │   ├── database.py      # Database connection and session management
-│   └── __pycache__/     # Python bytecode cache
+│   └── routers/         # API route modules
+│       ├── __init__.py
+│       ├── auth.py      # Authentication routes (login)
+│       ├── admin.py     # Admin-only routes
+│       └── employee.py  # Employee routes
+├── scripts/
+│   └── seed.py          # Database seeding script
+├── tests/
+│   └── __init__.py      # Test package
+├── data/
+│   └── dummy_data.txt   # Dummy data file
+├── tests/
+│   └── __init__.py      # Test package
+├── data/
+│   └── dummy_data.txt   # Dummy data file
 ├── frontend/
 │   ├── index.html       # Landing page
 │   ├── employee-login.html    # Employee login page
@@ -55,7 +71,9 @@ employee_management/
 │       ├── employee.js  # Employee-specific JavaScript
 │       └── admin.js     # Admin-specific JavaScript
 ├── requirements.txt     # Python dependencies
-└── readme.md           # This file
+├── README.md           # This file
+├── .gitignore          # Git ignore file
+└── myenv/              # Virtual environment (ignored)
 ```
 
 ## Setup Instructions
@@ -86,16 +104,11 @@ employee_management/
 
 4. **Set up PostgreSQL database**:
    - Create a new database named `employee_db`
-   - Update database connection details in `backend/database.py` if needed
+   - Update database connection details in `app/database.py` if needed
 
-5. **Navigate to backend directory**:
-    '''bash
-    cd backend
-    '''
-
-6. **Start the backend server**:
+5. **Start the backend server**:
    ```bash
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
    The API will be available at `http://localhost:8000`
 
