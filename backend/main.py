@@ -30,10 +30,6 @@ def get_db():
 def add_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.create_employee(db, employee)
 
-@app.get("/admin/employees", response_model=List[schemas.EmployeeOut])
-def list_employees(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
-    return crud.get_all_employees(db)
-
 @app.get("/admin/employee/{emp_id}", response_model=schemas.EmployeeOut)
 def get_employee(emp_id: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     emp = crud.get_employee(db, emp_id)
@@ -157,3 +153,7 @@ def remove_department(name: str, db: Session = Depends(get_db), current_user: st
     if not deleted:
         raise HTTPException(status_code=404, detail="Department not found")
     return {"message": "Department deleted successfully"}
+
+@app.get("/admin/employees", response_model=schemas.EmployeeListResponse)
+def list_employees(skip: int = 0, limit: int = 10, name: str | None = None, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    return crud.get_limit_employees(skip, limit, name, db)

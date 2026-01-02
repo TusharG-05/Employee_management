@@ -174,3 +174,14 @@ def delete_department(db: Session, name: str):
     return True
 
 
+def get_limit_employees(skip : int, limit : int , name : str | None , db : Session):
+    query = db.query(Employee)
+    if name:
+        query = query.filter(Employee.name.ilike(f"%{name}%"))
+    total = query.count()
+    list_employees = query.offset(skip).limit(limit).all()
+    return {
+        "total" : total,
+        "list_of_employees" : list_employees 
+    }
+        

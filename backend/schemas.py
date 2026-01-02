@@ -42,3 +42,7 @@ class Token(BaseModel):  # New: For JWT response
     token_type: str
     emp_id: Optional[str] = None
     password: Optional[str] = None
+    
+class EmployeeListResponse(BaseModel):
+    total: int
+    list_of_employees: List[EmployeeOut]
