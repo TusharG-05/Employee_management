@@ -1,5 +1,11 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum
+import enum
 from .database import Base
+
+class AttendanceStatus(str, enum.Enum):
+    PRESENT = "present"
+    ABSENT = "absent"
+    LEAVE = "leave"
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -33,5 +39,5 @@ class Attendance(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     emp_id = Column(String, ForeignKey("employees.emp_id"))
-    status = Column(String)
+    status = Column(Enum(AttendanceStatus), default=AttendanceStatus.ABSENT)
     

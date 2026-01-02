@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from .models import AttendanceStatus
 from typing import Optional, List
 
 class EmployeeCreate(BaseModel):
@@ -21,9 +22,8 @@ class EmployeeLogin(BaseModel):
     emp_id: str
     password: str
 
-
 class AttendanceUpdate(BaseModel):
-    status: str
+    status: AttendanceStatus
 
 class EmployeeUpdate(BaseModel):
     name: Optional[str] = None

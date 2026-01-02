@@ -1,3 +1,4 @@
+from dotenv import load_dotenv 
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .database import SessionLocal, engine
@@ -9,6 +10,7 @@ from sqlalchemy import func
 from .security import authenticate_user, create_access_token, get_current_admin
 from .routers import auth, admin, employee
 
+load_dotenv()
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()

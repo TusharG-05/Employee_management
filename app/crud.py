@@ -2,7 +2,7 @@ import random
 import string
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Integer
-from .models import Employee, Department, Attendance, DeptMaster
+from .models import Employee, Department, Attendance, DeptMaster, AttendanceStatus
 from . import schemas
 from .security import get_password_hash
 import re
@@ -68,7 +68,7 @@ def create_employee(db: Session, data: schemas.EmployeeCreate):
     db.add(department)
     attendance = Attendance(
         emp_id=emp_id,
-        status="Absent"
+        status=AttendanceStatus.ABSENT
     )# 1. FIX: Missing get_employee function
     db.add(attendance)
     db.commit()
@@ -130,7 +130,7 @@ def delete_employee(db: Session, emp_id: str):
     db.commit()
 
 
-def mark_attendance(db: Session, emp_id: str, status: str):
+def mark_attendance(db: Session, emp_id: str, status: AttendanceStatus):
     """Update or create attendance record for employee"""
     attendance = db.query(Attendance).filter(Attendance.emp_id == emp_id).first()
 
