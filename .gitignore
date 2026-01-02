@@ -1,5 +1,5 @@
 # Virtual environment
-myvenv/
+myvenv
 
 # Python cache
 __pycache__/
@@ -11,5 +11,11 @@ __pycache__/
 # OS junk
 .DS_Store
 
-secret.key
-seed_data.py
+# secret key
+backend/secret.key
+
+#dummy data files
+backend/seed_data.py
+dummy_data.txt
+
+.vscode
