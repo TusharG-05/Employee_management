@@ -12,3 +12,4 @@ __pycache__/
 .DS_Store
 
 secret.key
+seed_data.py
