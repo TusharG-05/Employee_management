@@ -1,5 +1,8 @@
 # Virtual environment
-myvenv
+/myenv
+
+# VS Code settings
+.vscode/
 
 # Python cache
 __pycache__/
@@ -18,4 +21,3 @@ backend/secret.key
 backend/seed_data.py
 dummy_data.txt
 
-.vscode
