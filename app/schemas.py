@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from .models import AttendanceStatus
+from datetime import date
 from typing import Optional, List
 
 class EmployeeCreate(BaseModel):
@@ -24,20 +25,22 @@ class EmployeeLogin(BaseModel):
 
 class AttendanceUpdate(BaseModel):
     status: AttendanceStatus
+    date: date = None
+
 
 class EmployeeUpdate(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     dept: Optional[str] = None
     salary: Optional[int] = None
-    role: Optional[str] = None  # New: Optional role update
+    role: Optional[str] = None
 
 
 class DepartmentCreate(BaseModel):
     name: str
 
 
-class Token(BaseModel):  # New: For JWT response
+class Token(BaseModel):
     access_token: str
     token_type: str
     emp_id: Optional[str] = None

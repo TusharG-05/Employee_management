@@ -48,17 +48,8 @@ def update_employee(emp_id: str, data: schemas.EmployeeUpdate, db: Session = Dep
 @router.get("/admin/departments")
 def get_departments(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     """Get department statistics from master list combined with employees."""
-    # Seed master list from existing employees if empty (backwards compatibility)
-    if db.query(models.DeptMaster).count() == 0:
-        employees = db.query(models.Employee).all()
-        seen = set()
-        for emp in employees:
-            if emp.dept and emp.dept.upper() not in seen:
-                seen.add(emp.dept.upper())
-                db.add(models.DeptMaster(name=emp.dept.upper()))
-        db.commit()
-
-    departments = db.query(models.DeptMaster).all()
+    
+    departments = db.query(models.Department).all()
     result = []
     for dept in departments:
         q = db.query(models.Employee).filter(models.Employee.dept == dept.name)
@@ -80,7 +71,6 @@ def add_department(data: schemas.DepartmentCreate, db: Session = Depends(get_db)
 
 @router.delete("/admin/departments/{name}")
 def remove_department(name: str, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
-    # Prevent deleting if any employee is assigned
     count = db.query(models.Employee).filter(models.Employee.dept == name.upper()).count()
     if count > 0:
         raise HTTPException(

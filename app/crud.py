@@ -1,17 +1,18 @@
-import random
-import string
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Integer
-from .models import Employee, Department, Attendance, DeptMaster, AttendanceStatus
+from .models import Employee, Department, Attendance, AttendanceStatus
 from . import schemas
 from .security import get_password_hash
+from fastapi import HTTPException
 import re
+import random
+import string
 
 def generate_emp_id(db: Session, name: str, role: str = "employee"):
     name_upper = name.upper().replace(' ', '')
     prefix = "ADMIN" if role == "admin" else ""
     
-    # Get the emp_id with the largest numeric part across all
+    
     last_emp = (
         db.query(Employee)
         .order_by(func.cast(func.right(Employee.emp_id, 3), Integer).desc())
@@ -19,7 +20,6 @@ def generate_emp_id(db: Session, name: str, role: str = "employee"):
     )
     
     if last_emp:
-        # Extract the number from the end of the emp_id
         emp_id_str = last_emp.emp_id
         match = re.search(r'(\d+)$', emp_id_str)
         if match:
@@ -38,39 +38,33 @@ def generate_password(length=8):
 
 def create_employee(db: Session, data: schemas.EmployeeCreate):
     role = data.role or "employee"
+    # Check if department exists
+    dept_name = data.dept.upper()
+    existing_dept = db.query(Department).filter(Department.name == dept_name).first()
+    if not existing_dept:
+        raise HTTPException(status_code=400, detail=f"Department '{dept_name}' does not exist.")
+
     emp_id = generate_emp_id(db, data.name, role)
     password = generate_password()
-    hashed_password = get_password_hash(password)  # Hash the password
+    hashed_password = get_password_hash(password)
 
     employee = Employee(
         emp_id=emp_id,
         name=data.name,
         age=data.age,
-        dept=data.dept,
+        dept=dept_name,
         salary=data.salary,
-        password=hashed_password,  # Store hashed password
-        role=role  # Set role (*default - "employee") 
+        password=hashed_password,
+        role=role 
     )
     db.add(employee)
-    db.flush()
-
-    # ensure department master entry exists
-    dept_name = data.dept.upper()
-    existing = db.query(DeptMaster).filter(DeptMaster.name == dept_name).first()
-    if not existing:
-        db.add(DeptMaster(name=dept_name))
     
-    department = Department(
-        emp_id=emp_id,
-        department=dept_name
-    )
-    
-    db.add(department)
     attendance = Attendance(
         emp_id=emp_id,
         status=AttendanceStatus.ABSENT
-    )# 1. FIX: Missing get_employee function
+    )
     db.add(attendance)
+    
     db.commit()
 
     return {
@@ -102,19 +96,10 @@ def update_employee(db: Session, emp_id: str, data: schemas.EmployeeUpdate):
 
     if data.dept is not None:
         dept_name = data.dept.upper()
+        existing_dept = db.query(Department).filter(Department.name == dept_name).first()
+        if not existing_dept:
+             raise HTTPException(status_code=400, detail=f"Department '{dept_name}' does not exist.")
         employee.dept = dept_name
-
-        department = db.query(Department).filter(
-            Department.emp_id == emp_id
-        ).first()
-
-        if department:
-            department.department = dept_name
-
-        # ensure department exists in master list
-        existing = db.query(DeptMaster).filter(DeptMaster.name == dept_name).first()
-        if not existing:
-            db.add(DeptMaster(name=dept_name))
 
     if data.role is not None:
         employee.role = data.role
@@ -125,7 +110,6 @@ def update_employee(db: Session, emp_id: str, data: schemas.EmployeeUpdate):
 
 def delete_employee(db: Session, emp_id: str):
     db.query(Attendance).filter(Attendance.emp_id == emp_id).delete()
-    db.query(Department).filter(Department.emp_id == emp_id).delete()
     db.query(Employee).filter(Employee.emp_id == emp_id).delete()
     db.commit()
 
@@ -149,15 +133,15 @@ def mark_attendance(db: Session, emp_id: str, status: AttendanceStatus):
 
 def list_departments(db: Session):
     """Return all department master records."""
-    return db.query(DeptMaster).all()
+    return db.query(Department).all()
 
 
 def create_department(db: Session, data: schemas.DepartmentCreate):
     name = data.name.upper()
-    existing = db.query(DeptMaster).filter(DeptMaster.name == name).first()
+    existing = db.query(Department).filter(Department.name == name).first()
     if existing:
         return existing
-    dept = DeptMaster(name=name)
+    dept = Department(name=name)
     db.add(dept)
     db.commit()
     db.refresh(dept)
@@ -166,7 +150,7 @@ def create_department(db: Session, data: schemas.DepartmentCreate):
 def delete_department(db: Session, name: str):
     """Delete a department from master list (does not touch employees)."""
     name = name.upper()
-    dept = db.query(DeptMaster).filter(DeptMaster.name == name).first()
+    dept = db.query(Department).filter(Department.name == name).first()
     if not dept:
         return False
     db.delete(dept)
@@ -184,4 +168,3 @@ def get_limit_employees(skip : int, limit : int , name : str | None , db : Sessi
         "total" : total,
         "list_of_employees" : list_employees 
     }
-        

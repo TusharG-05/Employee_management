@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum, Date
+from sqlalchemy.sql import func
 import enum
 from .database import Base
 
@@ -16,22 +17,14 @@ class Employee(Base):
     dept = Column(String)
     salary = Column(Float)
     password = Column(String)
-    role = Column(String, default="employee")  # New: Role column, default to "employee"
-
-
-class DeptMaster(Base):
-    __tablename__ = "dept_master"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    role = Column(String, default="employee") 
 
 
 class Department(Base):
     __tablename__ = "departments"
 
     id = Column(Integer, primary_key=True, index=True)
-    emp_id = Column(String, ForeignKey("employees.emp_id"))
-    department = Column(String)
+    name = Column(String, unique=True, index=True)
 
 
 class Attendance(Base):
@@ -39,5 +32,6 @@ class Attendance(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     emp_id = Column(String, ForeignKey("employees.emp_id"))
+    date = Column(Date, default=func.now())
     status = Column(Enum(AttendanceStatus), default=AttendanceStatus.ABSENT)
     
