@@ -58,6 +58,7 @@ def create_employee(db: Session, data: schemas.EmployeeCreate):
         role=role 
     )
     db.add(employee)
+    db.flush()
     
     attendance = Attendance(
         emp_id=emp_id,

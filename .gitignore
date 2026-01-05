@@ -15,5 +15,5 @@ __pycache__/
 .vscode/
 
 #dummy data files
-scripts/seed.py
+scripts/seed_db.py
 data/dummy_data.txt
