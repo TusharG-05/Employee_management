@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from .models import AttendanceStatus
-from datetime import date
-from typing import Optional, List
+from datetime import date, datetime
+from typing import Optional, List, Literal
 
 class EmployeeCreate(BaseModel):
     name: str
@@ -49,3 +49,21 @@ class Token(BaseModel):
 class EmployeeListResponse(BaseModel):
     total: int
     list_of_employees: List[EmployeeOut]
+
+class LeaveCreate(BaseModel):
+    leave_date: date
+    reason: Optional[str] = None
+
+class LeaveDecision(BaseModel):
+    decision : Literal["ACCEPTED", "REJECTED"]
+
+class LeaveOut(BaseModel):
+    leave_date: date
+    reason: Optional[str]
+    status: str
+    applied_at: datetime
+    approved_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+

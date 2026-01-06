@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum, Date
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum, Date, DateTime
 from sqlalchemy.sql import func
 import enum
+from datetime import datetime
 from .database import Base
 
 class AttendanceStatus(str, enum.Enum):
@@ -35,3 +36,16 @@ class Attendance(Base):
     date = Column(Date, default=func.now())
     status = Column(Enum(AttendanceStatus), default=AttendanceStatus.ABSENT)
     
+class Leave(Base):
+    __tablename__ = "leaves"
+
+    id = Column(Integer, primary_key=True)
+    emp_id = Column(String, ForeignKey("employees.emp_id"))
+    leave_date = Column(Date,nullable=False) 
+    reason = Column(String)
+    status = Column(String, default="PENDING")
+    applied_at = Column(DateTime, default=datetime.utcnow)
+    approved_by = Column(String, nullable=True)
+    approved_at = Column(DateTime, nullable=True)
+
+   

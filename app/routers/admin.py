@@ -85,3 +85,10 @@ def remove_department(name: str, db: Session = Depends(get_db), current_user: st
 @router.get("/admin/employees", response_model=schemas.EmployeeListResponse)
 def list_employees(skip: int = 0, limit: int = 10, name: str | None = None, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.get_limit_employees(skip, limit, name, db)
+
+@router.patch("/admin/leave/{leave_id}")
+def update_leave_status(leave_id : int, decision : schemas.LeaveDecision, db : Session = Depends(get_db), current_user : str = Depends(get_current_admin)):
+    emp = crud.get_employee(db, current_user)
+    if not emp or emp.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return crud.leave_decision(db, leave_id, decision, current_user)
