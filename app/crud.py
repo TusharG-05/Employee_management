@@ -159,6 +159,9 @@ def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, adm
 def get_leaves_status(db: Session, emp_id : str):
     return db.query(Leave).filter(Leave.emp_id == emp_id).order_by(Leave.applied_at.desc()).all()
 
+def list_all_leaves(db: Session):
+    return db.query(Leave).order_by(Leave.applied_at.desc()).all()
+
 def get_notifications(db : Session, emp_id : str):
     return db.query(Notifications).filter(Notifications.emp_id == emp_id).order_by(Notifications.created_at.desc()).all()
 

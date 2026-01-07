@@ -59,6 +59,7 @@ class LeaveDecision(BaseModel):
 
 class LeaveOut(BaseModel):
     id : int
+    emp_id: str
     leave_date: date
     reason: Optional[str]
     status: str
