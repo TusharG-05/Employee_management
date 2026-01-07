@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Employee Details</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="bg-dark">
-  
+
+  <div id="navbar"></div>
+
   <div class="container py-4">
     <div class="card card-custom mb-4">
       <div class="card-body">
@@ -14,39 +18,40 @@
         <div id="details"></div>
       </div>
     </div>
-    
+
     <div class="d-flex gap-2 mb-4">
       <button onclick="showEditForm()" class="btn btn-warning flex-grow-1">Edit</button>
       <button onclick="deleteEmployee()" class="btn btn-danger flex-grow-1">Delete</button>
       <button onclick="location.href='admin-dashboard.html'" class="btn btn-secondary flex-grow-1">Back</button>
     </div>
-    
+
     <!-- Edit Form -->
     <div id="editSection" class="card card-custom" style="display:none;">
       <div class="card-body">
         <h5 class="text-white mb-3">Edit Employee</h5>
-        
+
         <div class="mb-3">
           <input id="editName" class="form-control bg-dark text-white border-secondary" placeholder="Name">
         </div>
-        
+
         <div class="mb-3">
           <input id="editAge" type="number" class="form-control bg-dark text-white border-secondary" placeholder="Age">
         </div>
-        
+
         <div class="mb-3">
           <input id="editDept" class="form-control bg-dark text-white border-secondary" placeholder="Department">
         </div>
-        
+
         <div class="mb-4">
-          <input id="editSalary" type="number" class="form-control bg-dark text-white border-secondary" placeholder="Salary">
+          <input id="editSalary" type="number" class="form-control bg-dark text-white border-secondary"
+            placeholder="Salary">
         </div>
-        
+
         <button onclick="updateEmployee()" class="btn btn-primary w-100">Save Changes</button>
       </div>
     </div>
   </div>
-  
+
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
   <script>
@@ -56,4 +61,5 @@
     loadEmployeeDetails();
   </script>
 </body>
+
 </html>

@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom border-bottom border-secondary mb-4">
+    <div class="container">
+        <a class="navbar-brand text-primary" href="admin-dashboard.html" id="navbar-brand-link">
+            <i class="bi bi-shield-fill-check me-2"></i>EMS ADMIN
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <!-- Notification Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-link text-white position-relative p-0" type="button" id="notificationDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false" onclick="loadNotifications()">
+                    <i class="bi bi-bell fs-5"></i>
+                    <span id="notification-badge"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notification-badge">
+                        0
+                    </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end notification-dropdown p-2" id="notification-list"
+                    aria-labelledby="notificationDropdown">
+                    <li class="dropdown-item text-muted text-center py-3">Loading...</li>
+                </ul>
+            </div>
+
+            <button onclick="logout()" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Update navbar based on user type
+    (function () {
+        const path = window.location.pathname;
+        const brandLabel = document.getElementById('navbar-brand-link');
+        if (path.includes('employee')) {
+            brandLabel.href = 'employee-dashboard.html';
+            brandLabel.classList.remove('text-primary');
+            brandLabel.classList.add('text-success');
+            brandLabel.innerHTML = '<i class="bi bi-person-badge me-2"></i>EMS Portal';
+        }
+    })();
+</script>

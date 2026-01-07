@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = ""; // Relative path as frontend is hosted on the same origin
 
 // Function to get stored token
 function getToken() {
@@ -33,7 +33,18 @@ async function apiRequest(url, options = {}) {
     // Token expired or invalid
     clearToken();
     alert('Session expired. Please login again.');
-    window.location.href = 'admin-login.html';
+    if (window.location.pathname.includes('admin')) {
+      window.location.href = 'admin-login.html';
+    } else {
+      window.location.href = 'employee-login.html';
+    }
   }
   return response;
+}
+
+function getUserType() {
+  const path = window.location.pathname;
+  if (path.includes('admin')) return 'admin';
+  if (path.includes('employee')) return 'employee';
+  return null;
 }

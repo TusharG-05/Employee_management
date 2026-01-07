@@ -1,52 +1,94 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="bg-dark">
-  
-  <div class="container py-4">
-    <!-- Actions -->
-    <div class="d-flex gap-2 mb-4 flex-wrap justify-content-between align-items-center">
-      <div class="d-flex gap-2 flex-wrap">
-        <a href="add-employee.html" class="btn btn-primary">
-          <i class="bi bi-person-plus"></i> Add Employee
-        </a>
-        <a href="attendance.html" class="btn btn-success">
-          <i class="bi bi-calendar-check"></i> Attendance
-        </a>
-        <a href="#" class="btn btn-info" onclick="showDepartmentsModal()" data-bs-toggle="modal" data-bs-target="#deptModal">
-          <i class="bi bi-building"></i> Departments
-        </a>
-      </div>
-      <a href="index.html" class="btn btn-outline-danger">
-        <i class="bi bi-box-arrow-right"></i> Logout
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom border-bottom border-secondary mb-4">
+    <div class="container">
+      <a class="navbar-brand text-primary" href="admin-dashboard.html">
+        <i class="bi bi-shield-fill-check me-2"></i>EMS ADMIN
       </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <!-- Notification Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-link text-white position-relative p-0" type="button" id="notificationDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false" onclick="loadNotifications()">
+            <i class="bi bi-bell fs-5"></i>
+            <span id="notification-badge"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notification-badge">
+              0
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end notification-dropdown p-2" id="notification-list"
+            aria-labelledby="notificationDropdown">
+            <li class="dropdown-item text-muted text-center py-3">Loading...</li>
+          </ul>
+        </div>
+
+        <button onclick="logout()" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
     </div>
-    
+  </nav>
+
+  <div class="container py-2">
+    <!-- Actions -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-8">
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="add-employee.html" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Add Employee
+          </a>
+          <a href="attendance.html" class="btn btn-success">
+            <i class="bi bi-calendar-check"></i> Attendance
+          </a>
+          <button class="btn btn-info" onclick="showDepartmentsModal()" data-bs-toggle="modal"
+            data-bs-target="#deptModal">
+            <i class="bi bi-building"></i> Departments
+          </button>
+          <button class="btn btn-warning" onclick="loadLeaveRequests()" data-bs-toggle="modal"
+            data-bs-target="#leaveModal">
+            <i class="bi bi-calendar-event"></i> Leave Requests
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Employee List -->
     <div class="card card-custom">
-      <div class="card-header bg-dark-custom">
+      <div class="card-header bg-dark-custom d-flex justify-content-between align-items-center">
         <h5 class="mb-0 text-white"><i class="bi bi-people me-2"></i>Employees</h5>
+        <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+          <input type="text" id="employeeSearch" class="form-control bg-dark border-secondary text-white"
+            placeholder="Search employees..." onkeyup="searchEmployees()">
+        </div>
       </div>
-      <div class="card-body p-0">
+      <div class="card-body p-0" id="employees-body">
         <div id="employees">
           <!-- Loaded by JS -->
         </div>
       </div>
     </div>
   </div>
-  
+
   <!-- Department Modal -->
   <div class="modal fade" id="deptModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content bg-dark-custom">
         <div class="modal-header border-secondary">
           <h5 class="modal-title text-white">Departments</h5>
-          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <table class="table table-dark-custom table-sm align-middle">
@@ -68,12 +110,34 @@
       </div>
     </div>
   </div>
-  
+
+  <!-- Leave Modal -->
+  <div class="modal fade" id="leaveModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-dark-custom">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-white">Leave Requests</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="leave-requests-list">
+            <!-- Loaded by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/notifications.js"></script>
   <script>
-    loadEmployees();
+    document.addEventListener('DOMContentLoaded', () => {
+      loadEmployees();
+      loadNotifications();
+    });
   </script>
 </body>
+
 </html>
