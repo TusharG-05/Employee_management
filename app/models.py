@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum, Date, DateTime
+from sqlalchemy import Column, String, Integer, Float,Boolean, ForeignKey, Enum, Date, DateTime
 from sqlalchemy.sql import func
 import enum
 from datetime import datetime
@@ -48,4 +48,11 @@ class Leave(Base):
     approved_by = Column(String, nullable=True)
     approved_at = Column(DateTime, nullable=True)
 
-   
+class Notifications(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True , index=True)
+    emp_id = Column(String, ForeignKey("employees.emp_id"))
+    message = Column(String, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

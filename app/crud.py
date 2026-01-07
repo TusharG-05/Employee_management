@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Integer
-from .models import Employee, Department, Attendance, AttendanceStatus, Leave
+from .models import Employee, Department, Attendance, AttendanceStatus, Leave, Notifications
 from . import schemas
 from .security import get_password_hash
 from fastapi import HTTPException
@@ -141,9 +141,48 @@ def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, adm
     leave.status = data.decision
     leave.approved_at = datetime.now()
     leave.approved_by = admin_id
-    db.commit()
-    db.refresh(leave)
+
+    notification = Notifications(
+        emp_id=leave.emp_id,
+        message=f"Your leave request for {leave.leave_date} has been {data.decision.lower()}",
+        is_read=False,
+    )
+    try:
+        db.add(notification)
+        db.commit()
+        db.refresh(leave)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to process leave decision: {str(e)}")
     return leave
 
 def get_leaves_status(db: Session, emp_id : str):
     return db.query(Leave).filter(Leave.emp_id == emp_id).order_by(Leave.applied_at.desc()).all()
+
+def get_notifications(db : Session, emp_id : str):
+    return db.query(Notifications).filter(Notifications.emp_id == emp_id).order_by(Notifications.created_at.desc()).all()
+
+def read_notification(db : Session, id : int,current_user : str):
+    notification = db.query(Notifications).filter(Notifications.id == id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notification.is_read = True
+    db.commit()
+    return notification
+
+def delete_notification(id : int, db : Session, current_user : str):
+    notification = db.query(Notifications).filter(Notifications.id == id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    db.delete(notification)
+    db.commit()
+    return {"message" : "Notification Deleted Successfully"}
+
+def mark_read_all_notifications(db : Session, current_user : str):
+    notifications = db.query(Notifications).filter(Notifications.emp_id == current_user).all()
+    if not notifications:
+        return "No Notifications Found"
+    for notification in notifications:
+        notification.is_read = True
+    db.commit()
+    return notifications
