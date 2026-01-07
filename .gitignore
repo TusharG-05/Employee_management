@@ -17,3 +17,6 @@ __pycache__/
 #dummy data files
 scripts/seed_db.py
 data/dummy_data.txt
+
+# Alembic versions
+alembic/versions/
