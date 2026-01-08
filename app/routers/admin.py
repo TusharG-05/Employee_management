@@ -87,11 +87,11 @@ def list_employees(skip: int = 0, limit: int = 10, name: str | None = None, db: 
     return crud.get_limit_employees(skip, limit, name, db)
 
 @router.patch("/admin/leave/{leave_id}")
-def update_leave_status(leave_id : int, decision : schemas.LeaveDecision, db : Session = Depends(get_db), current_user : str = Depends(get_current_admin)):
+async def update_leave_status(leave_id : int, decision : schemas.LeaveDecision, db : Session = Depends(get_db), current_user : str = Depends(get_current_admin)):
     emp = crud.get_employee(db, current_user)
     if not emp or emp.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
-    return crud.leave_decision(db, leave_id, decision, current_user)
+    return await crud.leave_decision(db, leave_id, decision, current_user)
 
 @router.get("/admin/leaves", response_model=list[schemas.LeaveOut])
 def list_leaves(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):

@@ -4,6 +4,7 @@ from .models import Employee, Department, Attendance, AttendanceStatus, Leave, N
 from . import schemas
 from .security import get_password_hash
 from fastapi import HTTPException
+from .websocket.manager import manager
 import re, random, string
 from datetime import date, datetime
 
@@ -130,7 +131,7 @@ def apply_leave(db :Session,emp_id : str , data : schemas.LeaveCreate):
     db.refresh(leave)
     return leave    
 
-def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, admin_id : str):
+async def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, admin_id : str):
     leave = db.query(Leave).filter(Leave.id == leave_id).first()
     if not leave:
         raise HTTPException(status_code=404, detail="leave not found or applied yet")
@@ -151,6 +152,14 @@ def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, adm
         db.add(notification)
         db.commit()
         db.refresh(leave)
+        
+        # Send WebSocket notification
+        await manager.send_personal_message({
+            "type": "notification",
+            "message": notification.message,
+            "id": notification.id
+        }, leave.emp_id)
+        
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to process leave decision: {str(e)}")
