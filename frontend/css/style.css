@@ -24,8 +24,13 @@ body.bg-dark {
 }
 
 /* Essential text fixes */
-.text-white { color: #ffffff !important; }
-.text-muted { color: #94a3b8 !important; }
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-muted {
+  color: #94a3b8 !important;
+}
 
 /* Table fix */
 .table-dark-custom {
@@ -90,18 +95,29 @@ body.bg-dark {
 }
 
 /* Badges for status */
-.badge-present { background: #16a34a !important; }
-.badge-absent { background: #dc2626 !important; }
-.badge-late { background: #d97706 !important; }
-.badge-leave { background: #2563eb !important; }
+.badge-present {
+  background: #16a34a !important;
+}
+
+.badge-absent {
+  background: #dc2626 !important;
+}
+
+.badge-late {
+  background: #d97706 !important;
+}
+
+.badge-leave {
+  background: #2563eb !important;
+}
 
 /* Employee list rows */
-#employees > div {
+#employees>div {
   background: rgba(15, 23, 42, 0.85);
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
-#employees > div:hover {
+#employees>div:hover {
   background: rgba(30, 64, 175, 0.35);
   transform: translateY(-1px);
 }
@@ -194,4 +210,27 @@ body.bg-dark {
 
 .nav-custom-link:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* Toast polish */
+.toast-container {
+  z-index: 2000;
+}
+
+.toast {
+  background: #0f172a !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px);
+}
+
+.toast-body {
+  color: #f1f5f9 !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.toast .btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }

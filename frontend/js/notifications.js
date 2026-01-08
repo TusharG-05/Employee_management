@@ -83,7 +83,71 @@ async function deleteNotification(id, event) {
     }
 }
 
-// Polling for notifications every 30 seconds
-if (getToken()) {
-    setInterval(loadNotifications, 30000);
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-white bg-primary border-0 show';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-bell-fill me-2"></i> ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 5000);
 }
+
+function initWebSocket() {
+    const emp_id = localStorage.getItem("emp_id");
+    const token = getToken();
+    if (!emp_id || !token) return;
+
+    const ws = new WebSocket(`${WS_BASE}/ws/${emp_id}`);
+
+    ws.onopen = () => {
+        setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send('ping');
+            }
+        }, 10000);
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.type === "notification") {
+                showToast(data.message);
+                loadNotifications(); // Refresh the list
+            }
+        } catch (e) {
+            console.error("WS Message Error:", e);
+        }
+    };
+
+    ws.onclose = () => {
+        console.log("WebSocket connection closed, retrying in 5s...");
+        setTimeout(initWebSocket, 5000);
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket Error:", err);
+    };
+}
+
+// Initialize WebSocket if token exists
+if (getToken()) {
+    initWebSocket();
+}
+

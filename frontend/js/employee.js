@@ -77,7 +77,7 @@ async function loadEmployeeDashboard() {
                 <h4 class="mb-0 text-white">${status}</h4>
             </div>
             <div class="d-flex gap-2">
-                <button onclick="markAttendance('PRESENT')" class="btn btn-sm btn-success">Mark Present</button>
+                <button onclick="markAttendance('present')" class="btn btn-sm btn-success">Mark Present</button>
             </div>
         </div>
     `;
@@ -89,7 +89,7 @@ async function loadEmployeeDashboard() {
                 <h4 class="mb-0 text-white">NOT MARKED</h4>
             </div>
             <div class="d-flex gap-2">
-                <button onclick="markAttendance('PRESENT')" class="btn btn-sm btn-success">Mark Present</button>
+                <button onclick="markAttendance('present')" class="btn btn-sm btn-success">Mark Present</button>
             </div>
         </div>
       `;
@@ -100,11 +100,13 @@ async function markAttendance(status) {
   try {
     const res = await apiRequest('/employee/attendance', {
       method: 'POST',
-      body: JSON.stringify(status)
+      body: JSON.stringify({ status })
     });
     if (res.ok) {
       alert("Attendance marked successfully");
       loadEmployeeDashboard();
+    } else {
+      alert("Failed to mark attendance");
     }
   } catch (err) {
     alert("Failed to mark attendance");
@@ -118,6 +120,21 @@ async function applyLeave() {
   if (!dateInput) {
     alert("Please select a date");
     return;
+  }
+
+  // Check for duplicate leave on the same day
+  try {
+    const leaveRes = await apiRequest('/employee/leave');
+    if (leaveRes.ok) {
+      const leaves = await leaveRes.json();
+      const hasDuplicate = leaves.some(leave => leave.leave_date === dateInput);
+      if (hasDuplicate) {
+        alert("You have already applied for leave on this date");
+        return;
+      }
+    }
+  } catch (err) {
+    console.error("Error checking existing leaves:", err);
   }
 
   try {

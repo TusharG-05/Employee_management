@@ -160,6 +160,9 @@ async function updateLeave(id, decision) {
 
 function getStatusBadgeClass(status) {
   switch (status) {
+    case 'present': return 'bg-success';
+    case 'absent': return 'bg-danger';
+    case 'leave': return 'bg-warning';
     case 'ACCEPTED': return 'bg-success';
     case 'REJECTED': return 'bg-danger';
     case 'PENDING': return 'bg-warning';
@@ -230,6 +233,7 @@ async function loadAttendance() {
             <thead>
                 <tr>
                     <th>Emp ID</th>
+                    <th>Name</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -240,6 +244,7 @@ async function loadAttendance() {
       const row = document.createElement("tr");
       row.innerHTML = `
                 <td>${att.emp_id}</td>
+                <td>${att.name}</td>
                 <td><span class="badge ${getStatusBadgeClass(att.status)}">${att.status}</span></td>
             `;
       tbody.appendChild(row);

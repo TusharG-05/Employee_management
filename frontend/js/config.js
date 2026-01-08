@@ -1,18 +1,20 @@
-const API_BASE = ""; // Relative path as frontend is hosted on the same origin
+const API_BASE = "http://localhost:8000";
+const WS_BASE = "ws://localhost:8000";
+
 
 // Function to get stored token
 function getToken() {
-  return localStorage.getItem('token');
+  return sessionStorage.getItem('token');
 }
 
 // Function to set token
 function setToken(token) {
-  localStorage.setItem('token', token);
+  sessionStorage.setItem('token', token);
 }
 
 // Function to clear token
 function clearToken() {
-  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
 }
 
 // Helper to make authenticated requests

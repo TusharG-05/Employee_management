@@ -9,8 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 router = APIRouter()
 
 @router.post("/employee/attendance")
-def employee_mark_attendance(status: schemas.AttendanceStatus, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
-    crud.mark_attendance(db, current_user, status)
+def employee_mark_attendance(request: schemas.AttendanceUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    crud.mark_attendance(db, current_user, request.status)
     return {"message": "Attendance marked successfully"}
 
 @router.get("/employee/attendance/{emp_id}")

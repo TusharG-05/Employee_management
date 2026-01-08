@@ -6,7 +6,7 @@ class ConnectionManager:
     
     async def connect(self, websocket: WebSocket, emp_id : str):
         await websocket.accept()
-        if emp_if not in self.active_connections:
+        if emp_id not in self.active_connections:
             self.active_connections[emp_id] = []
         
         self.active_connections[emp_id].append(websocket)

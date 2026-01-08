@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from .. import models, schemas, crud
 from ..security import get_current_admin
 from ..dependencies import get_db
+from datetime import date
 
 router = APIRouter()
 
@@ -24,7 +25,19 @@ def delete_employee(emp_id: str, db: Session = Depends(get_db), current_user: st
 
 @router.get("/admin/attendance")
 def admin_attendance(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
-    return db.query(models.Attendance).all()
+    employees = db.query(models.Employee).all()
+    attendances = {att.emp_id: att.status for att in db.query(models.Attendance).all()}
+    today = date.today()
+    leaves = db.query(models.Leave).filter(models.Leave.status == "ACCEPTED", models.Leave.leave_date == today).all()
+    leave_emps = {leave.emp_id for leave in leaves}
+    result = []
+    for emp in employees:
+        if emp.emp_id in leave_emps:
+            status = models.AttendanceStatus.LEAVE
+        else:
+            status = attendances.get(emp.emp_id, models.AttendanceStatus.ABSENT)
+        result.append({"emp_id": emp.emp_id, "name": emp.name, "status": status.value})
+    return result
 
 @router.put("/admin/attendance/{emp_id}")
 def update_attendance(emp_id: str, data: schemas.AttendanceUpdate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
