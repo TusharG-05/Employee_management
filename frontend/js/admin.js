@@ -337,3 +337,6 @@ async function deleteEmployee() {
     alert("Server error");
   }
 }
+
+// Make functions global for WebSocket updates
+window.loadLeaveRequests = loadLeaveRequests;

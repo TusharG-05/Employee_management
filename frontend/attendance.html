@@ -41,6 +41,8 @@
           loadNotifications();
         });
       loadAttendance();
+      // Poll for updates
+      setInterval(loadAttendance, 10000);
     });
   </script>
 </body>

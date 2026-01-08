@@ -64,6 +64,11 @@ async function loadEmployeeDashboard() {
   }
 
   // Attendance
+  await loadAttendanceSection();
+}
+
+async function loadAttendanceSection() {
+  const emp_id = localStorage.getItem("emp_id");
   const attRes = await apiRequest(`/employee/attendance/${emp_id}`);
   const section = document.getElementById("attendance-section");
   if (attRes.ok) {
@@ -104,7 +109,7 @@ async function markAttendance(status) {
     });
     if (res.ok) {
       alert("Attendance marked successfully");
-      loadEmployeeDashboard();
+      loadAttendanceSection();
     } else {
       alert("Failed to mark attendance");
     }
@@ -207,3 +212,7 @@ function logout() {
   clearToken();
   location.href = "index.html";
 }
+
+// Make functions global for WebSocket updates
+window.loadLeaveRequests = loadLeaveRequests;
+window.loadAttendanceSection = loadAttendanceSection;

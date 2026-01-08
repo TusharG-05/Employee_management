@@ -130,6 +130,12 @@ function initWebSocket() {
             if (data.type === "notification") {
                 showToast(data.message);
                 loadNotifications(); // Refresh the list
+                // Refresh leave requests if notification is about leave
+                if (data.message.includes("leave request")) {
+                    if (window.loadLeaveRequests) {
+                        window.loadLeaveRequests();
+                    }
+                }
             }
         } catch (e) {
             console.error("WS Message Error:", e);

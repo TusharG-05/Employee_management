@@ -138,6 +138,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadEmployees();
       loadNotifications();
+      // Poll for updates
+      setInterval(loadEmployees, 30000);
+      setInterval(loadLeaveRequests, 30000);
     });
   </script>
 </body>
