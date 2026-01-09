@@ -25,7 +25,7 @@ class EmployeeLogin(BaseModel):
 
 class AttendanceUpdate(BaseModel):
     status: AttendanceStatus
-    date: date = None
+    date : date = None 
 
 
 class EmployeeUpdate(BaseModel):
@@ -77,3 +77,4 @@ class NotificationOut(BaseModel):
 
     class Config:
         from_attributes = True
+

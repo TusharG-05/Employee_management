@@ -3,23 +3,46 @@
 let currentEmployee = null;
 
 async function adminLogin() {
+  console.log("adminLogin function called");
+  
   const emp_id = document.getElementById("emp_id").value;
   const password = document.getElementById("password").value;
 
+  if (!emp_id || !password) {
+    alert("Please enter emp_id and password");
+    return;
+  }
+
+  console.log("Attempting login for:", emp_id);
+  console.log("API_BASE:", API_BASE);
+
   try {
-    const res = await fetch(`${API_BASE}/employee/login`, {
+    const url = `${API_BASE}/employee/login`;
+    console.log("Fetching URL:", url);
+    
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ emp_id, password })
     });
 
-    if (!res.ok) throw new Error("Invalid credentials");
+    console.log("Response status:", res.status);
+    console.log("Response ok:", res.ok);
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ detail: "Invalid credentials" }));
+      console.error("Login error:", errorData);
+      throw new Error(errorData.detail || "Invalid credentials");
+    }
 
     const data = await res.json();
+    console.log("Login successful, token received");
     setToken(data.access_token);
+    localStorage.setItem("emp_id", emp_id);
     location.href = "admin-dashboard.html";
   } catch (error) {
-    alert("Invalid admin credentials");
+    console.error("Login exception:", error);
+    alert("Login failed: " + error.message);
   }
 }
 

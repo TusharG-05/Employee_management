@@ -32,11 +32,11 @@ def employee_profile(emp_id: str, db: Session = Depends(get_db), current_user: s
     return emp
 
 @router.post("/employee/leave", response_model=schemas.LeaveOut)
-def employee_apply_leave(leave : schemas.LeaveCreate, db : Session = Depends(get_db),current_user = Depends(get_current_user)):
+async def employee_apply_leave(leave: schemas.LeaveCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     emp = crud.get_employee(db, current_user)
     if not emp or emp.role != "employee":
         raise HTTPException(status_code=403, detail="Not authorized")
-    return crud.apply_leave(db, current_user, leave)
+    return await crud.apply_leave(db, current_user, leave)
 
 @router.get("/employee/leave", response_model=list[schemas.LeaveOut])
 def employee_get_leave(db : Session = Depends(get_db),current_user = Depends(get_current_user)):

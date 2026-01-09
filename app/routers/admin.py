@@ -109,3 +109,9 @@ async def update_leave_status(leave_id : int, decision : schemas.LeaveDecision, 
 @router.get("/admin/leaves", response_model=list[schemas.LeaveOut])
 def list_leaves(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     return crud.list_all_leaves(db)
+
+@router.get("/admin/leaves/pending-count")
+def get_pending_leaves_count(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    count = crud.get_pending_leaves_count(db)
+    return {"pending_leaves": count}
+

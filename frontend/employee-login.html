@@ -1,36 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Employee Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Login - EMS Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-dark">
   <div class="container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card card-custom" style="width: 350px;">
+    <div class="card card-custom fade-in" style="width: 100%; max-width: 400px;">
       <div class="card-body p-4">
-        <h4 class="text-white text-center mb-4">Employee Login</h4>
-        
-        <div class="mb-3">
-          <input id="emp_id" class="form-control bg-dark text-white border-secondary" 
-                 placeholder="Employee ID">
+        <div class="text-center mb-4">
+          <div class="profile-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <h4 class="text-white mb-2">Employee Login</h4>
+          <p class="text-muted small">Enter your credentials to access your dashboard</p>
         </div>
         
-        <div class="mb-4">
-          <input id="password" class="form-control bg-dark text-white border-secondary" 
-                 placeholder="Password" type="password">
-        </div>
-        
-        <button onclick="employeeLogin()" class="btn btn-success w-100 mb-3">Login</button>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="emp_id" class="form-label text-muted small">
+              <i class="bi bi-person-badge me-1"></i>Employee ID
+            </label>
+            <input id="emp_id" 
+                   class="form-control bg-dark text-white border-secondary" 
+                   placeholder="Enter your employee ID"
+                   autocomplete="username"
+                   required
+                   autofocus>
+          </div>
+          
+          <div class="mb-4">
+            <label for="password" class="form-label text-muted small">
+              <i class="bi bi-lock me-1"></i>Password
+            </label>
+            <input id="password" 
+                   class="form-control bg-dark text-white border-secondary" 
+                   placeholder="Enter your password" 
+                   type="password"
+                   autocomplete="current-password"
+                   required>
+          </div>
+          
+          <button type="button" class="btn btn-success w-100 mb-3" onclick="employeeLogin()">
+            Login
+          </button>
+        </form>
         
         <div class="text-center">
-          <a href="index.html" class="text-muted text-decoration-none">← Back to Home</a>
+          <a href="index.html" class="text-muted text-decoration-none small">
+            <i class="bi bi-arrow-left me-1"></i>Back to Home
+          </a>
         </div>
       </div>
     </div>
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/employee.js"></script>
+  <script>
+    // Allow Enter key to submit form
+    document.addEventListener('DOMContentLoaded', () => {
+      const password = document.getElementById('password');
+      if (password) {
+        password.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            employeeLogin();
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

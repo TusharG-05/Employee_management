@@ -56,3 +56,6 @@ class Notifications(Base):
     message = Column(String, nullable=False)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+# class ChatMessage(Base):
+#     __tablename__ = ""

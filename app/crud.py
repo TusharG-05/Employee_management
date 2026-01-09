@@ -119,25 +119,74 @@ def get_limit_employees(skip: int, limit: int, name: str | None, db: Session):
     list_employees = query.offset(skip).limit(limit).all()
     return {"total": total, "list_of_employees": list_employees}
 
-def apply_leave(db :Session,emp_id : str , data : schemas.LeaveCreate):
+async def apply_leave(db: Session, emp_id: str, data: schemas.LeaveCreate):
     if data.leave_date <= date.today():
         raise HTTPException(status_code=400, detail="Leave date cannot be in the past")
+
+    employee = db.query(Employee).filter(Employee.emp_id == emp_id).first()
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    existing_leave = db.query(Leave).filter(
+        Leave.emp_id == emp_id,
+        Leave.leave_date == data.leave_date
+    ).first()
+    if existing_leave:
+        raise HTTPException(status_code=400, detail="You have already applied for leave on this date")
+
     leave = Leave(
-        emp_id=emp_id, leave_date=data.leave_date, reason=data.reason,
-        status="PENDING", applied_at=datetime.now(),
+        emp_id=emp_id,
+        leave_date=data.leave_date,
+        reason=data.reason,
+        status="PENDING",
+        applied_at=datetime.utcnow()
     )
     db.add(leave)
+    db.flush()
+
+    admins = db.query(Employee).filter(Employee.role == "admin").all()
+
+    notifications: list[tuple[str, Notifications]] = []
+
+    for admin in admins:
+        notification = Notifications(
+            emp_id=admin.emp_id,
+            message=f"New leave request from {employee.name} for date {data.leave_date.strftime('%Y-%m-%d')}",
+            is_read=False
+        )
+        db.add(notification)
+        notifications.append((admin.emp_id, notification))
+
     db.commit()
     db.refresh(leave)
-    return leave    
+    
+    # Refresh notifications to get their IDs
+    for admin_emp_id, notification in notifications:
+        db.refresh(notification)
+        try:
+            await manager.send_notification(
+                {
+                    "type": "notification",
+                    "id": notification.id,
+                    "leave_id": leave.id,
+                    "message": notification.message,
+                    "action": "new_leave_application"
+                },
+                admin_emp_id
+            )
+        except Exception as e:
+            print(f"WebSocket notification failed for admin {admin_emp_id}: {e}")
+    
+    return leave
+ 
 
-async def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecision, admin_id : str):
+async def leave_decision(db: Session, leave_id: int, data: schemas.LeaveDecision, admin_id: str):
     leave = db.query(Leave).filter(Leave.id == leave_id).first()
     if not leave:
-        raise HTTPException(status_code=404, detail="leave not found or applied yet")
+        raise HTTPException(status_code=404, detail="Leave not found or applied yet")
     
     if leave.status != "PENDING":
-        raise HTTPException(status_code=400, detail="leave is not pending")
+        raise HTTPException(status_code=400, detail="Leave is not pending")
     
     leave.status = data.decision
     leave.approved_at = datetime.now()
@@ -152,12 +201,15 @@ async def leave_decision(db:Session, leave_id : int, data : schemas.LeaveDecisio
         db.add(notification)
         db.commit()
         db.refresh(leave)
+        db.refresh(notification)
         
         # Send WebSocket notification
-        await manager.send_personal_message({
+        await manager.send_notification({
             "type": "notification",
             "message": notification.message,
-            "id": notification.id
+            "id": notification.id,
+            "action": "leave_decision",
+            "decision": data.decision
         }, leave.emp_id)
         
     except Exception as e:
@@ -170,6 +222,9 @@ def get_leaves_status(db: Session, emp_id : str):
 
 def list_all_leaves(db: Session):
     return db.query(Leave).order_by(Leave.applied_at.desc()).all()
+
+def get_pending_leaves_count(db: Session) -> int:
+    return db.query(Leave).filter(Leave.status == "PENDING").count()
 
 def get_notifications(db : Session, emp_id : str):
     return db.query(Notifications).filter(Notifications.emp_id == emp_id).order_by(Notifications.created_at.desc()).all()
@@ -198,3 +253,4 @@ def mark_read_all_notifications(db : Session, current_user : str):
         notification.is_read = True
     db.commit()
     return notifications
+

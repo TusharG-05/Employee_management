@@ -15,6 +15,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     access_token = create_access_token(data={"sub": user.emp_id})
     return {"access_token": access_token, "token_type": "bearer"}
 
+#for frontend login
 @router.post("/employee/login")
 def employee_login(data: schemas.EmployeeLogin, db: Session = Depends(get_db)):
     user = authenticate_user(db, data.emp_id, data.password)
