@@ -2,7 +2,7 @@
 
 async function employeeLogin() {
   console.log("employeeLogin function called");
-  
+
   const emp_id = document.getElementById("emp_id").value;
   const password = document.getElementById("password").value;
 
@@ -17,7 +17,7 @@ async function employeeLogin() {
   try {
     const url = `${API_BASE}/employee/login`;
     console.log("Fetching URL:", url);
-    
+
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -85,7 +85,7 @@ async function loadEmployeeDashboard() {
                 <i class="bi bi-currency-dollar text-muted me-2"></i>
                 <span class="text-muted small">Salary</span>
               </div>
-              <span class="text-success fw-bold fs-5">$${profile.salary.toLocaleString()}</span>
+              <span class="text-success fw-bold fs-5">₹${profile.salary.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ async function loadEmployeeDashboard() {
 async function loadAttendanceSection() {
   const emp_id = localStorage.getItem("emp_id");
   const section = document.getElementById("attendance-section");
-  
+
   // Show loading state
   section.innerHTML = `
     <div class="text-center py-4">
@@ -115,9 +115,9 @@ async function loadAttendanceSection() {
       </div>
     </div>
   `;
-  
+
   const attRes = await apiRequest(`/employee/attendance/${emp_id}`);
-  
+
   if (attRes.ok) {
     const attendance = await attRes.json();
     const status = (attendance && attendance.status) ? attendance.status : "NOT MARKED";
@@ -179,11 +179,11 @@ async function loadAttendanceSection() {
 async function markAttendance(status) {
   const btn = document.getElementById('markAttendanceBtn');
   if (!btn) return;
-  
+
   const originalText = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Marking...';
-  
+
   try {
     const res = await apiRequest('/employee/attendance', {
       method: 'POST',
@@ -236,8 +236,8 @@ async function applyLeave() {
       const leaves = await leaveRes.json();
       // Compare dates properly - convert both to date strings for comparison
       const hasDuplicate = leaves.some(leave => {
-        const leaveDateStr = typeof leave.leave_date === 'string' 
-          ? leave.leave_date.split('T')[0] 
+        const leaveDateStr = typeof leave.leave_date === 'string'
+          ? leave.leave_date.split('T')[0]
           : leave.leave_date;
         return leaveDateStr === dateInput;
       });
@@ -262,11 +262,11 @@ async function applyLeave() {
       showToast('Leave application submitted successfully!', 'success');
       document.getElementById('leave_date').value = '';
       document.getElementById('leave_reason').value = '';
-      
+
       // Close modal with animation
       const modal = bootstrap.Modal.getInstance(document.getElementById('applyLeaveModal'));
       modal.hide();
-      
+
       // Refresh leave list after a short delay
       setTimeout(() => {
         loadLeaveRequests();
@@ -319,10 +319,10 @@ async function loadLeaveRequests() {
     console.warn("Leave list container not found");
     return;
   }
-  
+
   // Store previous content to detect changes
   const previousContent = container.innerHTML;
-  
+
   container.innerHTML = `
     <div class="text-center py-4">
       <div class="spinner-border spinner-border-sm text-primary" role="status">
@@ -337,7 +337,7 @@ async function loadLeaveRequests() {
     if (!res.ok) {
       throw new Error("Failed to fetch leave requests");
     }
-    
+
     const leaves = await res.json();
 
     if (leaves.length === 0) {
@@ -376,25 +376,25 @@ async function loadLeaveRequests() {
       console.error("Leave table body not found");
       return;
     }
-    
+
     leaves.forEach((l, index) => {
       const row = document.createElement('tr');
       row.className = 'fade-in';
       row.style.animationDelay = `${index * 0.05}s`;
-      
-      const statusClass = l.status === 'ACCEPTED' ? 'bg-success' : 
-                         l.status === 'REJECTED' ? 'bg-danger' : 'bg-warning';
-      const statusIcon = l.status === 'ACCEPTED' ? 'bi-check-circle' : 
-                        l.status === 'REJECTED' ? 'bi-x-circle' : 'bi-clock';
-      
+
+      const statusClass = l.status === 'ACCEPTED' ? 'bg-success' :
+        l.status === 'REJECTED' ? 'bg-danger' : 'bg-warning';
+      const statusIcon = l.status === 'ACCEPTED' ? 'bi-check-circle' :
+        l.status === 'REJECTED' ? 'bi-x-circle' : 'bi-clock';
+
       // Format date
       const leaveDate = new Date(l.leave_date);
-      const formattedDate = leaveDate.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      const formattedDate = leaveDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
       });
-      
+
       row.innerHTML = `
         <td>
           <div class="d-flex align-items-center">
@@ -415,7 +415,7 @@ async function loadLeaveRequests() {
       `;
       tbody.appendChild(row);
     });
-    
+
     // Add a subtle animation to indicate update if content changed
     if (previousContent && previousContent !== container.innerHTML) {
       container.style.transition = 'opacity 0.3s';

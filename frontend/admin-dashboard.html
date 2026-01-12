@@ -12,6 +12,64 @@
 
 <body class="bg-dark">
 
+  <!-- Menu Toggle Button -->
+  <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar Menu -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h5><i class="bi bi-grid-3x3-gap-fill me-2"></i>Menu</h5>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" data-bs-toggle="modal" data-bs-target="#profileModal" onclick="loadAdminProfile()">
+          <i class="bi bi-person-circle"></i>
+          <span>My Profile</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="add-employee.html" class="sidebar-menu-link">
+          <i class="bi bi-person-plus"></i>
+          <span>Add Employee</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="attendance.html" class="sidebar-menu-link">
+          <i class="bi bi-calendar-check"></i>
+          <span>Attendance</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" data-bs-toggle="modal" data-bs-target="#deptModal"
+          onclick="showDepartmentsModal()">
+          <i class="bi bi-building"></i>
+          <span>Departments</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" data-bs-toggle="modal" data-bs-target="#leaveModal" onclick="loadLeaveRequests()">
+          <i class="bi bi-calendar-event"></i>
+          <span>Leave Requests</span>
+          <span id="sidebar-leave-badge" class="badge bg-danger ms-auto d-none">0</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" id="chat-menu-link">
+          <i class="bi bi-chat-dots"></i>
+          <span>Global Chat</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom border-bottom border-secondary mb-4 sticky-top">
     <div class="container">
       <a class="navbar-brand text-gradient" href="admin-dashboard.html">
@@ -46,33 +104,6 @@
   </nav>
 
   <div class="container py-2">
-    <!-- Actions -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-8">
-        <div class="d-flex gap-2 flex-wrap">
-          <a href="add-employee.html" class="btn btn-primary">
-            <i class="bi bi-person-plus"></i> Add Employee
-          </a>
-          <a href="attendance.html" class="btn btn-success">
-            <i class="bi bi-calendar-check"></i> Attendance
-          </a>
-          <button class="btn btn-info" onclick="showDepartmentsModal()" data-bs-toggle="modal"
-            data-bs-target="#deptModal">
-            <i class="bi bi-building"></i> Departments
-          </button>
-          <button class="btn btn-warning position-relative" onclick="loadLeaveRequests()" data-bs-toggle="modal"
-            data-bs-target="#leaveModal">
-            <i class="bi bi-calendar-event"></i> Leave Requests
-            <!-- Pending Leave Badge -->
-            <span id="pending-leave-badge"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
-              style="font-size: 0.65rem; padding: 0.25em 0.45em;">
-              0
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Employee List -->
     <div class="card card-custom fade-in">
@@ -130,6 +161,24 @@
     </div>
   </div>
 
+  <!-- Profile Modal -->
+  <div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark-custom">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-white"><i class="bi bi-person-circle me-2"></i>My Profile</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="admin-profile-content">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-3 mb-0">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Leave Modal -->
   <div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -155,23 +204,204 @@
     </div>
   </div>
 
+  <!-- Global Chat Toggle Button -->
+  <button class="chat-toggle" id="chat-toggle" aria-label="Toggle chat">
+    <i class="bi bi-chat-dots-fill"></i>
+  </button>
+
+  <!-- Global Chat Container -->
+  <div class="chat-container" id="chat-container">
+    <div class="chat-header">
+      <h5>
+        <i class="bi bi-chat-dots-fill"></i>
+        Office Echo
+      </h5>
+      <button class="chat-close" id="chat-close" aria-label="Close chat">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty">
+        <i class="bi bi-chat-dots"></i>
+        <p>No messages yet. Start a conversation!</p>
+      </div>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." />
+      <button class="chat-send" id="chat-send" aria-label="Send message">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
+
   <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/notifications.js"></script>
+  <script src="js/chat.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Function to load admin profile
+    function loadAdminProfile() {
+      const empId = localStorage.getItem('emp_id');
+      const profileContent = document.getElementById('admin-profile-content');
+
+      fetch(`${API_BASE_URL}/admin/employee/${empId}`, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          profileContent.innerHTML = `
+          <div class="text-center mb-4">
+            <div class="profile-avatar mx-auto">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Employee ID</small>
+                <strong class="text-white">${data.emp_id}</strong>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Name</small>
+                <strong class="text-white">${data.name}</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Age</small>
+                <strong class="text-white">${data.age}</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Department</small>
+                <strong class="text-white">${data.dept}</strong>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Role</small>
+                <span class="badge bg-primary">${data.role.toUpperCase()}</span>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 bg-dark rounded">
+                <small class="text-muted d-block mb-1">Salary</small>
+                <strong class="text-white">₹${data.salary.toLocaleString()}</strong>
+              </div>
+            </div>
+          </div>
+        `;
+        })
+        .catch(error => {
+          profileContent.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Failed to load profile
+          </div>
+        `;
+        });
+    }
+
+    // Function to initialize UI elements
+    function initializeUI() {
+      console.log('Initializing UI...');
+
+      // Initialize sidebar
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      const sidebarClose = document.getElementById('sidebar-close');
+      const chatMenuLink = document.getElementById('chat-menu-link');
+
+      console.log('Elements found:', {
+        menuToggle: !!menuToggle,
+        sidebar: !!sidebar,
+        chatMenuLink: !!chatMenuLink
+      });
+
+      if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+          console.log('Menu toggle clicked');
+          sidebar.classList.add('active');
+          sidebarOverlay.classList.add('active');
+        });
+      }
+
+      const closeSidebar = () => {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+      };
+
+      if (sidebarClose) {
+        sidebarClose.addEventListener('click', closeSidebar);
+      }
+
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+      }
+
+      // Handle chat menu link - close sidebar and open chat
+      if (chatMenuLink) {
+        chatMenuLink.addEventListener('click', () => {
+          console.log('Chat menu link clicked');
+          closeSidebar(); // Close sidebar first
+          setTimeout(() => {
+            const chatToggle = document.getElementById('chat-toggle');
+            if (chatToggle) {
+              chatToggle.click();
+            }
+          }, 300); // Wait for sidebar animation to complete
+        });
+      }
+
+      // Close sidebar when clicking modal triggers
+      document.querySelectorAll('[data-bs-toggle="modal"]').forEach(element => {
+        element.addEventListener('click', () => {
+          setTimeout(closeSidebar, 100);
+        });
+      });
+
+      // Initialize global chat
+      const empId = localStorage.getItem('emp_id');
+      const empName = localStorage.getItem('emp_name') || 'Admin';
+      if (empId && window.globalChat) {
+        window.globalChat.init(empId, empName);
+      }
+    }
+
+    // Run on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        loadEmployees();
+        loadNotifications();
+        loadLeaveRequests();
+        initializeUI();
+
+        // Poll for updates
+        setInterval(loadEmployees, 30000);
+        setInterval(loadLeaveRequests, 10000);
+        setInterval(loadNotifications, 30000);
+      });
+    } else {
+      // DOM already loaded, run immediately
       loadEmployees();
       loadNotifications();
-      loadPendingLeaveCount(); // New function to load pending count
-      
+      loadLeaveRequests();
+      initializeUI();
+
       // Poll for updates
       setInterval(loadEmployees, 30000);
-      setInterval(loadPendingLeaveCount, 10000); // Check pending leaves frequently
+      setInterval(loadLeaveRequests, 10000);
       setInterval(loadNotifications, 30000);
-    });
+    }
   </script>
 </body>
 

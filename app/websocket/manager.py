@@ -30,13 +30,20 @@ class ConnectionManager:
         self.global_chat[emp_id] = websocket
     
     def disconnect_global_chat(self, websocket : WebSocket):
-        if websocket in self.global_chat:
-            del self.global_chat[websocket]
+        emp_id_to_remove = None
+        for emp_id, ws in self.global_chat.items():
+            if ws == websocket:
+                emp_id_to_remove = emp_id
+                break
+        if emp_id_to_remove:
+            del self.global_chat[emp_id_to_remove]
     
-    async def send_global_chat(self, message : dict, sender_emp_id: str):
-        for chat_ws, emp_id in self.global_chat.items():
-            if emp_id != sender_emp_id:  # Don't send to sender
+    async def send_global_chat(self, message : dict):
+        for emp_id, chat_ws in self.global_chat.items():
+            try:
                 await chat_ws.send_json(message)
+            except Exception as e:
+                print(f"Failed to send message to {emp_id}: {e}")
 
 manager = ConnectionManager()
 

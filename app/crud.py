@@ -269,7 +269,7 @@ def chat_history(db : Session, limit : int = 50, before_id : int = None):
         query = query.order_by(ChatMessage.id < before_id)
     
     messages = query.order_by(ChatMessage.created_at.desc()).limit(limit).all()
-    return list[reversed(messages)]
+    return list(reversed(messages))
 
 def update_chat_message(db : Session,message_id : int , emp_id :str, new_message : str):
     chat_msg = db.query(ChatMessage).filter(ChatMessage.id == message_id, ChatMessage.emp_id == emp_id).first()
@@ -292,4 +292,4 @@ def delete_message(db : Session, message_id : int , emp_id : str):
     msg.is_deleted = True
     db.commit()
     db.refresh(msg)
-    return "Message deleted Successfully" 
+    return {"message" : "Message deleted Successfully" }

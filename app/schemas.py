@@ -75,6 +75,9 @@ class NotificationOut(BaseModel):
     class Config:
         from_attributes = True
 
+class chatMessageIn(BaseModel):
+    message : str
+    
 class chatMessageOut(BaseModel):
     id : int
     emp_id : str

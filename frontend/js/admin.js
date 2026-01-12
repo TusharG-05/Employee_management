@@ -4,7 +4,7 @@ let currentEmployee = null;
 
 async function adminLogin() {
   console.log("adminLogin function called");
-  
+
   const emp_id = document.getElementById("emp_id").value;
   const password = document.getElementById("password").value;
 
@@ -19,7 +19,7 @@ async function adminLogin() {
   try {
     const url = `${API_BASE}/employee/login`;
     console.log("Fetching URL:", url);
-    
+
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -75,7 +75,7 @@ async function loadEmployees(query = "") {
         <small class="text-muted">${emp.emp_id} &bull; ${emp.dept}</small>
       </div>
       <div>
-        <span class="badge bg-primary">$${emp.salary}</span>
+        <span class="badge bg-primary">₹${emp.salary}</span>
       </div>
     `;
     container.appendChild(div);
@@ -302,7 +302,7 @@ async function loadEmployeeDetails() {
         <div class="col-6"><p class="text-muted mb-1">ID</p><p class="text-white fw-bold">${emp.emp_id}</p></div>
         <div class="col-6"><p class="text-muted mb-1">Dept</p><p class="text-white fw-bold">${emp.dept}</p></div>
         <div class="col-6"><p class="text-muted mb-1">Age</p><p class="text-white fw-bold">${emp.age}</p></div>
-        <div class="col-12"><p class="text-muted mb-1">Salary</p><p class="text-success fw-bold fs-4">$${emp.salary}</p></div>
+        <div class="col-12"><p class="text-muted mb-1">Salary</p><p class="text-success fw-bold fs-4">₹${emp.salary}</p></div>
       </div>
     `;
   } catch (err) {

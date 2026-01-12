@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models, schemas, crud
 from ..security import get_current_admin
-from ..dependencies import get_db
+from ..database import get_db
 from datetime import date
 
 router = APIRouter()

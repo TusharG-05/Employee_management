@@ -12,6 +12,50 @@
 
 <body class="bg-dark">
 
+  <!-- Menu Toggle Button -->
+  <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar Menu -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h5><i class="bi bi-grid-3x3-gap-fill me-2"></i>Menu</h5>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" onclick="scrollToProfile()">
+          <i class="bi bi-person-circle"></i>
+          <span>My Profile</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" onclick="document.getElementById('attendance-tab').click()">
+          <i class="bi bi-calendar-check"></i>
+          <span>My Attendance</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" onclick="document.getElementById('leave-tab').click()">
+          <i class="bi bi-calendar-event"></i>
+          <span>Leave Management</span>
+        </a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a class="sidebar-menu-link" id="chat-menu-link">
+          <i class="bi bi-chat-dots"></i>
+          <span>Global Chat</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom border-bottom border-secondary mb-4 sticky-top">
     <div class="container">
       <a class="navbar-brand text-gradient" href="employee-dashboard.html">
@@ -165,24 +209,114 @@
     </div>
   </div>
 
+  <!-- Global Chat Toggle Button -->
+  <button class="chat-toggle" id="chat-toggle" aria-label="Toggle chat">
+    <i class="bi bi-chat-dots-fill"></i>
+  </button>
+
+  <!-- Global Chat Container -->
+  <div class="chat-container" id="chat-container">
+    <div class="chat-header">
+      <h5>
+        <i class="bi bi-chat-dots-fill"></i>
+        Office Echo
+      </h5>
+      <button class="chat-close" id="chat-close" aria-label="Close chat">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty">
+        <i class="bi bi-chat-dots"></i>
+        <p>No messages yet. Start a conversation!</p>
+      </div>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." />
+      <button class="chat-send" id="chat-send" aria-label="Send message">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
+
   <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="js/config.js"></script>
   <script src="js/employee.js"></script>
   <script src="js/notifications.js"></script>
+  <script src="js/chat.js"></script>
   <script>
+    // Function to scroll to profile section
+    function scrollToProfile() {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+      // Close sidebar
+      sidebar.classList.remove('active');
+      sidebarOverlay.classList.remove('active');
+
+      // Scroll to profile card
+      setTimeout(() => {
+        document.querySelector('.col-md-4')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       loadEmployeeDashboard();
       loadNotifications();
-      
+
+      // Initialize sidebar
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      const sidebarClose = document.getElementById('sidebar-close');
+      const chatMenuLink = document.getElementById('chat-menu-link');
+
+      menuToggle?.addEventListener('click', () => {
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+      });
+
+      const closeSidebar = () => {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+      };
+
+      sidebarClose?.addEventListener('click', closeSidebar);
+      sidebarOverlay?.addEventListener('click', closeSidebar);
+
+      // Handle chat menu link - close sidebar and open chat
+      chatMenuLink?.addEventListener('click', () => {
+        closeSidebar(); // Close sidebar first
+        setTimeout(() => {
+          document.getElementById('chat-toggle')?.click(); // Then open chat
+        }, 300); // Wait for sidebar animation to complete
+      });
+
+      // Close sidebar when clicking tab switches
+      document.querySelectorAll('.sidebar-menu-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (!link.id || link.id !== 'chat-menu-link') {
+            setTimeout(closeSidebar, 100);
+          }
+        });
+      });
+
+      // Initialize global chat
+      const empId = localStorage.getItem('emp_id');
+      const empName = localStorage.getItem('emp_name') || 'Employee';
+      if (empId && window.globalChat) {
+        window.globalChat.init(empId, empName);
+      }
+
       // Initialize WebSocket connection for real-time updates
       if (typeof initWebSocket === 'function') {
         setTimeout(() => {
           initWebSocket();
         }, 1000);
       }
-      
+
       // Poll for updates as fallback (in case WebSocket fails)
       setInterval(loadLeaveRequests, 30000);
       setInterval(loadAttendanceSection, 30000);
