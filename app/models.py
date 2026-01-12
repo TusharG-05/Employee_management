@@ -57,5 +57,13 @@ class Notifications(Base):
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-# class ChatMessage(Base):
-#     __tablename__ = ""
+class ChatMessage(Base):
+    __tablename__ = "office-echo"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    emp_id = Column(String,ForeignKey("employees.emp_id"), nullable=False)
+    emp_name = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+    created_at = Column(DateTime, default= datetime.utcnow)
+    edited_at = Column(DateTime, nullable=True)
+    is_deleted = Column(Boolean, default=False)

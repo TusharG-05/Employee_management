@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, Integer
-from .models import Employee, Department, Attendance, AttendanceStatus, Leave, Notifications
+from .models import Employee, Department, Attendance, AttendanceStatus, Leave, Notifications, ChatMessage
 from . import schemas
 from .security import get_password_hash
 from fastapi import HTTPException
@@ -254,3 +254,42 @@ def mark_read_all_notifications(db : Session, current_user : str):
     db.commit()
     return notifications
 
+def save_chat_message(db : Session,emp_id : str, emp_name : str, message : str):
+    chat_msg = ChatMessage(emp_id = emp_id, emp_name = emp_name, message = message, created_at = datetime.now())
+    
+    db.add(chat_msg)
+    db.commit()
+    db.refresh(chat_msg)
+    return chat_msg
+
+def chat_history(db : Session, limit : int = 50, before_id : int = None):
+    query = db.query(ChatMessage).filter(ChatMessage.is_deleted == False)
+    
+    if before_id:
+        query = query.order_by(ChatMessage.id < before_id)
+    
+    messages = query.order_by(ChatMessage.created_at.desc()).limit(limit).all()
+    return list[reversed(messages)]
+
+def update_chat_message(db : Session,message_id : int , emp_id :str, new_message : str):
+    chat_msg = db.query(ChatMessage).filter(ChatMessage.id == message_id, ChatMessage.emp_id == emp_id).first()
+    
+    if not chat_msg:
+        raise HTTPException(status_code=404, detail="Message not found or you don't own it")
+    
+    chat_msg.message = new_message
+    chat_msg.edited_at = datetime.now()
+    db.commit()
+    db.refresh(chat_msg)
+    return chat_msg
+
+def delete_message(db : Session, message_id : int , emp_id : str):
+    msg = db.query(ChatMessage).filter(ChatMessage.id == message_id, ChatMessage.emp_id == emp_id).first()
+    
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found or you don't own it")
+    
+    msg.is_deleted = True
+    db.commit()
+    db.refresh(msg)
+    return "Message deleted Successfully" 

@@ -18,7 +18,6 @@ class EmployeeOut(BaseModel):
     salary: float
     role: str
 
-
 class EmployeeLogin(BaseModel):
     emp_id: str
     password: str
@@ -35,10 +34,8 @@ class EmployeeUpdate(BaseModel):
     salary: Optional[int] = None
     role: Optional[str] = None
 
-
 class DepartmentCreate(BaseModel):
     name: str
-
 
 class Token(BaseModel):
     access_token: str
@@ -78,3 +75,14 @@ class NotificationOut(BaseModel):
     class Config:
         from_attributes = True
 
+class chatMessageOut(BaseModel):
+    id : int
+    emp_id : str
+    emp_name : str
+    message : str
+    created_at : datetime
+    edited_at : Optional[datetime]
+    is_deleted : bool
+    
+    class Config:
+        from_attributes = True
