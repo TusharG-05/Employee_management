@@ -1,5 +1,7 @@
-const API_BASE = "http://localhost:8000";
-const WS_BASE = "ws://localhost:8000";
+const API_HOST = window.location.hostname;
+const API_PORT = "8000";
+const API_BASE = `http://${API_HOST}:${API_PORT}`;
+const WS_BASE = `ws://${API_HOST}:${API_PORT}`;
 
 
 // Function to get stored token

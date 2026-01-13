@@ -80,13 +80,6 @@ async function loadEmployeeDashboard() {
               </div>
               <span class="text-white fw-semibold">${profile.dept}</span>
             </div>
-            <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(15, 23, 42, 0.5);">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-currency-dollar text-muted me-2"></i>
-                <span class="text-muted small">Salary</span>
-              </div>
-              <span class="text-success fw-bold fs-5">₹${profile.salary.toLocaleString()}</span>
-            </div>
           </div>
         </div>
     `;

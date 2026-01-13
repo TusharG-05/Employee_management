@@ -93,14 +93,34 @@ function searchEmployees() {
 
 async function createEmployee() {
   try {
-    const name = document.getElementById("name").value;
-    const age = document.getElementById("age").value;
+    const name = document.getElementById("name").value.trim();
+    const ageVal = document.getElementById("age").value;
     const dept = document.getElementById("dept").value;
-    const salary = document.getElementById("salary").value;
+    const salaryVal = document.getElementById("salary").value;
+
+    // Validation
+    if (!name || !isNaN(name)) {
+      alert("Name must be a valid string.");
+      return;
+    }
+    const age = Number(ageVal);
+    if (!Number.isInteger(age) || age <= 0) {
+      alert("Age must be a positive integer.");
+      return;
+    }
+    if (!dept) {
+      alert("Please select a department.");
+      return;
+    }
+    const salary = Number(salaryVal);
+    if (!Number.isInteger(salary) || salary < 0) {
+      alert("Salary must be a non-negative integer.");
+      return;
+    }
 
     const res = await apiRequest('/admin/add-employee', {
       method: "POST",
-      body: JSON.stringify({ name, age: Number(age), dept, salary: Number(salary) })
+      body: JSON.stringify({ name, age, dept, salary })
     });
 
     if (!res.ok) throw new Error("Backend error");
@@ -109,6 +129,28 @@ async function createEmployee() {
     location.href = "admin-dashboard.html";
   } catch (error) {
     alert("Failed to create employee.");
+  }
+}
+
+async function loadDepartmentOptions() {
+  const select = document.getElementById("dept");
+  if (!select) return;
+
+  try {
+    const res = await apiRequest('/admin/departments');
+    const departments = await res.json();
+
+    // Keep the default option
+    select.innerHTML = '<option value="">Select Department</option>';
+
+    departments.forEach(d => {
+      const option = document.createElement("option");
+      option.value = d.department;
+      option.textContent = d.department;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load departments", err);
   }
 }
 

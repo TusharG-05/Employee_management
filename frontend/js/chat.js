@@ -281,21 +281,12 @@ class GlobalChatManager {
     }
 
     formatTime(timestamp) {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
-
-        if (diff < 60000) {
-            return 'Just now';
-        } else if (diff < 3600000) {
-            const mins = Math.floor(diff / 60000);
-            return `${mins}m ago`;
-        } else if (diff < 86400000) {
-            const hours = Math.floor(diff / 3600000);
-            return `${hours}h ago`;
-        } else {
-            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        // Ensure UTC interpretation if missing timezone
+        if (typeof timestamp === 'string' && !timestamp.endsWith('Z')) {
+            timestamp += 'Z';
         }
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     showConnectionStatus(message, type) {

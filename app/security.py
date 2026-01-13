@@ -10,7 +10,7 @@ from . import models
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_HOURS = 1  
+ACCESS_TOKEN_EXPIRE_HOURS = 24  
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
