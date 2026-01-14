@@ -14,9 +14,7 @@ __pycache__/
 # IDE
 .vscode/
 
-#dummy data files
-scripts/seed_db.py
-data/dummy_data.txt
+data/
 
 # Alembic versions
 alembic/versions/

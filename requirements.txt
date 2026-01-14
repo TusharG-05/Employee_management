@@ -29,3 +29,5 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 uvicorn==0.38.0
 websockets==13.1
+gunicorn
+bcrypt==3.2.2

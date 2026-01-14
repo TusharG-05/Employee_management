@@ -74,6 +74,9 @@ def update_employee(db: Session, emp_id: str, data: schemas.EmployeeUpdate):
 
 def delete_employee(db: Session, emp_id: str):
     db.query(Attendance).filter(Attendance.emp_id == emp_id).delete()
+    db.query(Leave).filter(Leave.emp_id == emp_id).delete()
+    db.query(Notifications).filter(Notifications.emp_id == emp_id).delete()
+    db.query(ChatMessage).filter(ChatMessage.emp_id == emp_id).delete()
     db.query(Employee).filter(Employee.emp_id == emp_id).delete()
     db.commit()
 
@@ -266,7 +269,7 @@ def chat_history(db : Session, limit : int = 50, before_id : int = None):
     query = db.query(ChatMessage).filter(ChatMessage.is_deleted == False)
     
     if before_id:
-        query = query.order_by(ChatMessage.id < before_id)
+        query = query.filter(ChatMessage.id < before_id)
     
     messages = query.order_by(ChatMessage.created_at.desc()).limit(limit).all()
     return list(reversed(messages))

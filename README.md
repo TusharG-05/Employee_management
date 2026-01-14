@@ -30,128 +30,95 @@ A full-stack web application for managing employee data, built with FastAPI back
 
 ```
 employee_management/
-├── app/
-│   ├── __init__.py      # Package initialization
-│   ├── main.py          # FastAPI application entry point
-│   ├── dependencies.py  # Dependency injection utilities
-│   ├── models.py        # SQLAlchemy database models
-│   ├── schemas.py       # Pydantic schemas for request/response
-│   ├── crud.py          # Database operations
-│   ├── security.py      # Authentication utilities
-│   ├── database.py      # Database connection and session management
-│   └── routers/         # API route modules
-│       ├── __init__.py
-│       ├── auth.py      # Authentication routes (login)
-│       ├── admin.py     # Admin-only routes
-│       └── employee.py  # Employee routes
-├── scripts/
-│   └── seed.py          # Database seeding script
-├── tests/
-│   └── __init__.py      # Test package
-├── data/
-│   └── dummy_data.txt   # Dummy data file
-├── tests/
-│   └── __init__.py      # Test package
-├── data/
-│   └── dummy_data.txt   # Dummy data file
-├── frontend/
-│   ├── index.html       # Landing page
-│   ├── employee-login.html    # Employee login page
-│   ├── admin-login.html       # Admin login page
-│   ├── employee-dashboard.html # Employee dashboard
-│   ├── admin-dashboard.html   # Admin dashboard
-│   ├── employee-details.html  # Employee details view
-│   ├── attendance.html        # Attendance management
-│   ├── add-employee.html      # Add new employee form
-│   ├── admin-register.html    # Admin registration
-│   ├── css/
-│   │   └── style.css    # Application styles
-│   └── js/
-│       ├── config.js    # Configuration settings
-│       ├── employee.js  # Employee-specific JavaScript
-│       └── admin.js     # Admin-specific JavaScript
-├── requirements.txt     # Python dependencies
-├── README.md           # This file
-├── .gitignore          # Git ignore file
-└── myenv/              # Virtual environment (ignored)
+├── app/                  # Backend FastAPI application
+│   ├── main.py           # Application entry point
+│   ├── database.py       # Database connection
+│   ├── models.py         # SQLAlchemy models
+│   ├── schemas.py        # Pydantic schemas
+│   ├── security.py       # Authentication logic
+│   ├── crud.py           # Database operations
+│   └── routers/          # API routes
+├── frontend/             # Frontend static files
+│   ├── index.html        # Landing page
+│   ├── css/              # Styles
+│   └── js/               # JavaScript logic
+├── alembic/              # Database migrations
+│   └── env.py            # Migration environment
+├── data/                 # Data files
+├── scripts/              # Utility scripts
+│   └── seed_db.py        # Database seeding script
+├── compose.yaml          # Docker Compose configuration
+├── Dockerfile            # Backend Docker image definition
+├── requirements.txt      # Python dependencies
+├── alembic.ini           # Alembic configuration
+└── .gitignore            # Git ignore rules
 ```
 
-## Setup Instructions
+## Setup Instructions (Docker)
+
+This project is fully dockerized for easy setup.
 
 ### Prerequisites
-- Python 3.8+
-- PostgreSQL database
+- Docker & Docker Compose
 - Git
 
-### Backend Setup
+### Quick Start
 
-1. **Clone the repository** (if not already done):
-   ```bash
-   git clone <repository-url>
-   cd employee_management
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd employee_management
+    ```
 
-2. **Create and activate virtual environment**:
-   ```bash
-   python3 -m venv myenv
-   source myenv/bin/activate  # On Windows: myenv\Scripts\activate
-   ```
+2.  **Start the Application**:
+    ```bash
+    docker compose up --build -d
+    ```
+    - **Frontend**: [http://localhost](http://localhost)
+    - **Backend API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Initialize Database** (First run only):
+    Apply the database schema migrations:
+    ```bash
+    docker compose exec app alembic upgrade head
+    ```
 
-4. **Set up PostgreSQL database**:
-   - Create a new database named `employee_db`
-   - Update database connection details in `app/database.py` if needed
+4.  **Seed Data** (Optional):
+    Populate the database with sample employees from `data/employees.csv`:
+    ```bash
+    docker compose exec app python scripts/seed_db.py
+    ```
+    - Generated credentials will be saved to `data/dummy_data.txt` (this file is ignored by git).
 
-5. **Start the backend server**:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-   The API will be available at `http://localhost:8000`
+### Stopping the App
+- Stop containers (keep data): `docker compose stop`
+- Stop and **delete data** (clean slate): `docker compose down -v`
 
-### Frontend Setup
+## Local Development (Optional)
 
-1. **Navigate to frontend directory(current directory - employee_management)**:
-   ```bash
-   cd frontend
-   ```
+If you wish to run scripts locally (outside Docker), create a `.env` file in the root directory:
 
-2. **Open index.html in a web browser** or serve via a local server:
-   ```bash
-   python3 -m http.server 8080
-   ```
-   Access at `http://localhost:8080`
+```env
+DATABASE_URL=postgresql://postgres:Tush%234184@localhost/FastAPI_pdb
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+```
+
+Then install dependencies and run:
+```bash
+pip install -r requirements.txt
+python scripts/seed_db.py
+```
 
 ## Usage
 
-### Accessing the Application
-
-1. Open your browser and go to `http://localhost:8080`
+### Login
+After seeding the database, check `data/dummy_data.txt` for the generated login credentials.
+1. Open your browser and go to [http://localhost](http://localhost)
 2. Choose login type: Employee or Admin
+3. Use the generated credentials.
 
-### Admin Login
-
-- Use admin credentials 
-emp_id : ADMINOLIVIAPARKER096 with password: Y8wQWzVr || 
-emp_id : ADMINWYATTJENKINS097 with password: a9HnDB1T || 
-emp_id : ADMINGABRIELLANELSON098 with password: NjM2m#g# || 
-emp_id : ADMINPATRICKEVANS099 with password: oHzIpOse || 
-emp_id : ADMINKYLIEROBERTS100 with password: d1AKQWgq
-- Admins can manage all employees, departments, and attendance
-- Can add employees and generate credentials 
-
-### Employee Login
-
-- Use credentials generated during employee creation by admin
-- Employees can view their profile and attendance
-- Credentials for testing :- employee: HUNTERCARTER001 with password: gNydXXUN
-                             employee: JANESMITH002 with password: P9wjWeGN
-                             employee: URIELCOLEMAN003 with password: HQqTgBht
-
-### API Documentation
+## API Documentation
 
 When the backend is running, visit `http://localhost:8000/docs` for interactive API documentation powered by Swagger UI.
 
@@ -174,7 +141,7 @@ When the backend is running, visit `http://localhost:8000/docs` for interactive 
 ### Departments
 - `GET /departments/` - Get department information
 
-### Database Schema
+## Database Schema
 
 The application uses the following main tables:
 - `employees`: Employee information
@@ -189,4 +156,3 @@ The application uses the following main tables:
 3. Make your changes
 4. Add tests if applicable
 5. Submit a pull request
-
